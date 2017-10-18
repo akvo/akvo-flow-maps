@@ -2,4 +2,4 @@
  :duct.core/include ["akvo/flow/maps/config"]
 
  :duct.module/sql
- {:database-url "jdbc:postgresql://localhost/postgres"}}
+ {:database-url "jdbc:postgresql://postgres/postgres?user=dbuser&password=dbpassword"}}
