@@ -1,0 +1,12 @@
+{:duct.core/project-ns  akvo.flow.maps
+ :duct.core/environment :production
+
+ :duct.module/logging {}
+ :duct.module.web/api {}
+ :duct.module/sql {}
+ 
+ :duct.router/cascading
+ [#ig/ref :akvo.flow.maps.handler/example]
+
+ :akvo.flow.maps.handler/example
+ {:db #ig/ref :duct.database/sql}}
