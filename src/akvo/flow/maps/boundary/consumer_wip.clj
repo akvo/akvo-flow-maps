@@ -10,7 +10,7 @@
 
 (def c (consumer/make-consumer
          {:bootstrap.servers       "kafka:29092"
-          :group.id                "the-consumer-test-4"
+          :group.id                "the-consumer-test-0"
           :client.id               "example-consumer_host_name_or_container_id"
           :auto.offset.reset       :earliest
           :enable.auto.commit      true
@@ -28,11 +28,11 @@
 
 (cp/subscribe-to-partitions! c #".*datapoint.*")
 
-(dotimes [_ 100]
+(dotimes [_ 10]
   (let [records (cp/poll! c)
         batch (into [] (map (fn [r]
                               (update r :value avro/->clj))) records)]
-    (prn (count batch))
-    (db/insert-batch (map :value batch))))
+    (prn "batch:" (count batch)
+         "db:" (db/insert-batch (map :value batch)))))
 
 (.close c)
