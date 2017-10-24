@@ -6,7 +6,9 @@
 (def jdbc "jdbc:postgresql://postgres/a_tenant_db?user=a_tenant_user&password=a_tenant_password")
 
 (comment
-  (jdbc/execute! jdbc ["DELETE from datapoint"]))
+  (jdbc/execute! jdbc ["DELETE from datapoint"])
+  (jdbc/query jdbc ["select count(*) from datapoint"])
+  )
 
 (defn ->db-timestamp [v]
   (when v
@@ -28,8 +30,8 @@
   (when-let [db-datapoints (->> datapoints
                                 (map ->db-value)
                                 (filter valid?)
-                                (map (juxt :id :survey-id :last-update-date-time :created-date-time :latitude :longitude
-                                           :survey-id :last-update-date-time :created-date-time :latitude :longitude :id))
+                                (map (juxt :id :survey-id :last-update-date-time :created-date-time :longitude :latitude
+                                           :survey-id :last-update-date-time :created-date-time :longitude :latitude :id))
                                 seq)]
     (jdbc/execute! jdbc
                    (into ["insert into datapoint(id, survey_id, created_date_time, last_update_date_time, geom)
