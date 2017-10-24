@@ -3,17 +3,18 @@
     [franzy.clients.consumer.client :as consumer]
     [franzy.clients.consumer.protocols :as cp]
     [thdr.kfk.avro-bridge.core :as avro]
-    [franzy.serialization.deserializers :as deserializers])
+    [franzy.serialization.deserializers :as deserializers]
+    [akvo.flow.maps.boundary.db :as db])
   (:import (io.confluent.kafka.serializers KafkaAvroDeserializer)
            (org.apache.kafka.clients.consumer OffsetCommitCallback)))
 
 (def c (consumer/make-consumer
          {:bootstrap.servers       "kafka:29092"
-          :group.id                "the-consumer-test"
+          :group.id                "the-consumer-test-4"
           :client.id               "example-consumer_host_name_or_container_id"
           :auto.offset.reset       :earliest
           :enable.auto.commit      true
-          :max.poll.records        10
+          :max.poll.records        100
           :auto.commit.interval.ms 10000}
          (deserializers/keyword-deserializer)
          (doto
@@ -25,15 +26,13 @@
                                       (println "offset commited!" map e)))}))
 
 
-(cp/subscribe-to-partitions! c #"testing-.*")
-
-(cp/clear-subscriptions! c)
+(cp/subscribe-to-partitions! c #".*datapoint.*")
 
 (dotimes [_ 100]
   (let [records (cp/poll! c)
         batch (into [] (map (fn [r]
-                               (update r :value avro/->clj))) records)]
-    (println batch)
-    (println (count batch))))
+                              (update r :value avro/->clj))) records)]
+    (prn (count batch))
+    (db/insert-batch (map :value batch))))
 
 (.close c)
