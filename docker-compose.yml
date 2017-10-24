@@ -57,3 +57,16 @@ services:
     ports:
       - "47480:47480"
       - "3000:3000"
+
+  redis:
+     image: redis:3.2.9
+  windshaft:
+    build: windshaft
+    environment:
+      - NODE_ENV=development
+      - LUMEN_ENCRYPTION_KEY=supersecret
+      - PGSSLMODE=allow
+    volumes:
+       - ./windshaft/config/dev:/config
+    ports:
+      - "4000:4000"
