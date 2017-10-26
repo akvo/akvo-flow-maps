@@ -10,13 +10,13 @@
 
 (def c (consumer/make-consumer
          {:bootstrap.servers       "kafka:29092"
-          :group.id                "the-consumer-test-0"
+          :group.id                "the-consumer-test-101"
           :client.id               "example-consumer_host_name_or_container_id"
           :auto.offset.reset       :earliest
           :enable.auto.commit      true
           :max.poll.records        100
           :auto.commit.interval.ms 10000}
-         (deserializers/keyword-deserializer)
+         (deserializers/long-deserializer)
          (doto
            (KafkaAvroDeserializer.)
            (.configure {"schema.registry.url" "http://schema-registry:8081"} false))
