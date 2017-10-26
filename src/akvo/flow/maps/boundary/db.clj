@@ -3,11 +3,9 @@
     clojure.set
     [clojure.java.jdbc :as jdbc]))
 
-(def jdbc "jdbc:postgresql://postgres/a_tenant_db?user=a_tenant_user&password=a_tenant_password")
-
 (comment
-  (jdbc/execute! jdbc ["DELETE from datapoint"])
-  (jdbc/query jdbc ["select count(*) from datapoint"])
+  (jdbc/execute! (dev/db) ["DELETE from datapoint"])
+  (jdbc/query (dev/db) ["select count(*) from datapoint"])
   )
 
 (defn ->db-timestamp [v]
@@ -26,14 +24,14 @@
        (:longitude record)
        (:survey-id record)))
 
-(defn insert-batch [datapoints]
+(defn insert-batch [db datapoints]
   (when-let [db-datapoints (->> datapoints
                                 (map ->db-value)
                                 (filter valid?)
                                 (map (juxt :id :survey-id :last-update-date-time :created-date-time :longitude :latitude
                                            :survey-id :last-update-date-time :created-date-time :longitude :latitude :id))
                                 seq)]
-    (jdbc/execute! jdbc
+    (jdbc/execute! db
                    (into ["insert into datapoint(id, survey_id, created_date_time, last_update_date_time, geom)
                                  values (?, ?, ?, ?, ST_SetSRID(ST_MakePoint(?, ?), 4326))
                                  ON conflict(id)

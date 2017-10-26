@@ -9,7 +9,7 @@
     [clojure.tools.logging :refer [info debug error]])
   (:import (io.confluent.kafka.serializers KafkaAvroDeserializer)))
 
-(defmethod ig/init-key ::consumer [_ config]
+(defmethod ig/init-key ::consumer [_ {:keys [db]}]
   (info "Initializing Kafka Consumer...")
   (let [consumer (consumer/make-consumer
                    {:bootstrap.servers       "kafka:29092"
@@ -34,7 +34,7 @@
                 batch (into [] (map (fn [r]
                                       (update r :value avro/->clj))) records)]
             (debug "Read " (count batch) " records from Kafka")
-            (db/insert-batch (map :value batch))))
+            (db/insert-batch (:spec db) (map :value batch))))
         (.close consumer)
         (info "Kafka consumer has been stopped")
         (catch Throwable e

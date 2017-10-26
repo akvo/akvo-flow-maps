@@ -11,5 +11,5 @@
  :akvo.flow.maps.handler/example
  {:db #ig/ref :duct.database/sql}
 
- :akvo.flow.maps.kafka/consumer {}
+ :akvo.flow.maps.kafka/consumer {:db #ig/ref :duct.database/sql}
  }
