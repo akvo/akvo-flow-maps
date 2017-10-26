@@ -11,7 +11,6 @@
     <script>
         $(document).ready(function(){
             var map = new L.Map('map');
-            var baseURL_def = location.hash.substring(1) || "http://localhost:4000/layergroup";
             var mapConfig_def = JSON.stringify({
               version:"1.5.0",
               layers:[
@@ -39,7 +38,7 @@
               });
               layers = [];
 
-              var baseURL = $('#baseurl').val() + '/' + token;
+              var baseURL = 'http://localhost:4000/layergroup/' + token;
               var tileLayer = new L.tileLayer(baseURL + '/{z}/{x}/{y}.png');
               var osm = new L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 	                                {attribution: 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'});
@@ -69,18 +68,11 @@
             submitForm = function(ev){
                 ev.preventDefault();
 
-                var baseUrl = $('#baseurl').val();
                 var mapConfig = $('#mapconfig').val().replace(/[\r\n]/gm,"");
 
                 $.ajax({
-                  url: baseUrl,
+                  url: 'http://localhost:3000/create-map',
                   headers: {
-                    'X-DB-HOST': $('#dbhost').val(),
-                    'X-DB-USER': $('#dbuser').val(),
-                    'X-DB-PASSWORD': $('#dbpassword').val(),
-                    'X-DB-PORT': $('#dbport').val(),
-                    'X-DB-LAST-UPDATE': $('#dblastupdate').val(),
-                    'X-DB-NAME': $('#dbname').val(),
                     'Content-Type': 'application/json',
                   },
                   type: 'POST',
@@ -97,7 +89,6 @@
             };
 
             resetForm = function() {
-              $('#baseurl').val(baseURL_def);
               $('#mapconfig').val(mapConfig_def);
             };
 
@@ -118,14 +109,6 @@ to default value
 </p>
 
 <p>
-DB host: <input id="dbhost" type="text" size="20" value="postgres">
-DB user: <input id="dbuser" type="text" size="20" value="a_tenant_user">
-DB password: <input id="dbpassword" type="text" size="20" value="a_tenant_password">
-DB password: <input id="dbname" type="text" size="20" value="a_tenant_db">
-DB port: <input id="dbport" type="text" size="5" value="5432">
-Last DB update timestamp: <input id="dblastupdate" type="text" size="13" value="1000">
-<br />
-Base URL: <input type="text" size="40" id="baseurl">
 <input type="button" id="update_map" value="Go">
 <br />
 MapConfig (see <a href="https://github.com/CartoDB/Windshaft/blob/master/doc/MapConfig-specification.md">docs</a>):
