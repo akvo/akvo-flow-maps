@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="30 seconds">
 
-   <logger name="org.apache.http" level="OFF"/>
+   <logger name="org.apache.http" level="INFO"/>
+   <logger name="com.zaxxer.hikari.pool.HikariPool" level="INFO"/>
+   <logger name="com.ning.http.client" level="INFO"/>
+   <logger name="org.eclipse.jetty" level="INFO"/>
 
    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
       <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
