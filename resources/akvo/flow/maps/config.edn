@@ -9,4 +9,7 @@
  [#ig/ref :akvo.flow.maps.handler/example]
 
  :akvo.flow.maps.handler/example
- {:db #ig/ref :duct.database/sql}}
+ {:db #ig/ref :duct.database/sql}
+
+ :akvo.flow.maps.kafka/consumer {}
+ }
