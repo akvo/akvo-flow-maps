@@ -6,7 +6,7 @@
     [franzy.serialization.deserializers :as deserializers]
     [integrant.core :as ig]
     [akvo.flow.maps.boundary.db :as db]
-    [clojure.tools.logging :refer [info debug]])
+    [clojure.tools.logging :refer [info debug error]])
   (:import (io.confluent.kafka.serializers KafkaAvroDeserializer)))
 
 (defmethod ig/init-key ::consumer [_ config]
@@ -28,14 +28,17 @@
     (cp/subscribe-to-partitions! consumer #".*datapoint.*")
     (info "Subscribing to .*datapoint.*")
     (future
-      (while (not @stop)
-        (let [records (cp/poll! consumer)
-              batch (into [] (map (fn [r]
-                                    (update r :value avro/->clj))) records)]
-          (debug "Read " (count batch) " records from Kafka")
-          (db/insert-batch (map :value batch))))
-      (.close consumer)
-      (info "Kafka consumer has been stopped"))
+      (try
+        (while (not @stop)
+          (let [records (cp/poll! consumer)
+                batch (into [] (map (fn [r]
+                                      (update r :value avro/->clj))) records)]
+            (debug "Read " (count batch) " records from Kafka")
+            (db/insert-batch (map :value batch))))
+        (.close consumer)
+        (info "Kafka consumer has been stopped")
+        (catch Throwable e
+          (error e "Kafka consumer died unexpectedly. Service will need to be restarted."))))
     {:stop     stop
      :consumer consumer}))
 
