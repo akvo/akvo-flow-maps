@@ -10,6 +10,7 @@
                  [org.slf4j/jul-to-slf4j "1.7.14"]
                  [org.slf4j/log4j-over-slf4j "1.7.14"]
 
+                 [http.async.client "1.2.0"]
                  [duct/core "0.6.1"]
                  [duct/module.logging "0.3.1"]
                  [duct/module.web "0.6.2" :exclusions [org.slf4j/slf4j-nop]]
