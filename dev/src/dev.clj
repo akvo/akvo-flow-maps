@@ -25,3 +25,6 @@
   (load "local"))
 
 (integrant.repl/set-prep! (comp duct/prep read-config))
+
+(defn db []
+  (:spec (:duct.database.sql/hikaricp integrant.repl.state/system)))
