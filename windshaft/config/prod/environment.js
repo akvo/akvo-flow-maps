@@ -1,6 +1,6 @@
 module.exports.credentials_encryption_key= process.env.LUMEN_ENCRYPTION_KEY;
 module.exports.redis = {
-    host: 'redis-master-windshaft',
+    host: 'redis-master-flow-maps',
     max: 10
 };
 module.exports.renderer = {
