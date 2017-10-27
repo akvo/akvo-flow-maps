@@ -21,6 +21,7 @@
                  [org.postgresql/postgresql "42.1.4"]
                  [io.thdr/kfk.avro-bridge "0.1.0-SNAPSHOT"]]
   :plugins [[duct/lein-duct "0.10.3"]]
+  :uberjar-name "akvo-flow-maps.jar"
   :main ^:skip-aot akvo.flow.maps.main
   :resource-paths ["resources" "target/resources"]
   :prep-tasks ["javac" "compile" ["run" ":duct/compiler"]]
