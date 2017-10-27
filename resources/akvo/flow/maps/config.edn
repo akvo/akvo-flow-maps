@@ -4,12 +4,22 @@
  :duct.module/logging {}
  :duct.module.web/api {}
  :duct.module/sql {}
- 
+
  :duct.router/cascading
  [#ig/ref :akvo.flow.maps.handler/example]
 
  :akvo.flow.maps.handler/example
- {:db #ig/ref :duct.database/sql}
+ {:db #ig/ref :duct.database/sql
+  :http-proxy #ig/ref :akvo.flow.maps.boundary.http-proxy/http-client
+  :windshaft-url "http://windshaft:4000/layergroup"}
 
  :akvo.flow.maps.kafka/consumer {:db #ig/ref :duct.database/sql}
- }
+
+ :akvo.flow.maps.boundary.http-proxy/http-client
+ {:connection-timeout   10000
+  :request-timeout      10000
+  :read-timeout         10000
+  :max-connections      10
+  :idle-in-pool-timeout 60000}
+
+}

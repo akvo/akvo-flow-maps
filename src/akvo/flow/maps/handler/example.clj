@@ -4,8 +4,8 @@
             [akvo.flow.maps.boundary.http-proxy :as http-proxy]
             [cheshire.core :as json]))
 
-(defn windshaft-request [{:keys [request-method headers body-params]}]
-  (let [proxy-request {:url     "http://windshaft:4000/layergroup"
+(defn windshaft-request [windshaft-url {:keys [request-method headers body-params]}]
+  (let [proxy-request {:url     windshaft-url
                        :method  request-method
                        :headers (-> headers
                                     (dissoc "host" "connection")
@@ -29,21 +29,11 @@
       (update :status :code)
       (update :headers create-response-headers)))
 
-(defn handle-proxy-request [client request]
-  (-> (client (windshaft-request request))
-      (update :headers create-response-headers)))
-
-(def http-client (http-proxy/create-client {:connection-timeout   10000
-                                            :request-timeout      10000
-                                            :read-timeout         10000
-                                            :max-connections      100
-                                            :idle-in-pool-timeout 60000}))
-
-(defmethod ig/init-key :akvo.flow.maps.handler/example [_ options]
+(defmethod ig/init-key :akvo.flow.maps.handler/example [_ {:keys [http-proxy windshaft-url]}]
   (context "/create-map" []
     (POST "/" {:as req}
-      (->> (windshaft-request req)
-           (http-proxy/proxy-request http-client)
+      (->> (windshaft-request windshaft-url req)
+           (http-proxy/proxy-request http-proxy)
            build-response))
     (OPTIONS "/" {}
       {:headers {"Access-Control-Allow-Origin"  "*"

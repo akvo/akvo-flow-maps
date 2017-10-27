@@ -1,6 +1,7 @@
 (ns akvo.flow.maps.boundary.http-proxy
   (:require [http.async.client :as http]
-            [http.async.client.request :as http-req])
+            [http.async.client.request :as http-req]
+            [integrant.core :as ig])
   (:import (com.ning.http.client Request)))
 
 (defn proxy-request [client {:keys [method url] :as req}]
@@ -24,3 +25,9 @@
 
 (defn destroy [client]
   (http/close client))
+
+(defmethod ig/init-key ::http-client [_ config]
+   (create-client config))
+
+(defmethod ig/halt-key! ::http-client [_ client]
+  (destroy client))
