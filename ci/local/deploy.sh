@@ -11,6 +11,6 @@ gcloud container clusters get-credentials test --zone europe-west1-d --project a
 gcloud docker -- push eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps
 gcloud docker -- push eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-windshaft
 
-#kubectl apply -f ci/local/deployment.yaml
-kubectl apply -f ci/redis-master-windshaft.yaml
+kubectl apply -f ci/namespace.yaml
+kubectl apply -f ci/redis-master-flow-maps.yaml
 kubectl apply -f ci/local/windshaft.yaml
