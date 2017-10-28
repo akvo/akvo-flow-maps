@@ -43,6 +43,7 @@ metadata:
   labels:
     run: akvo-flow-maps-windshaft
 spec:
+  type: NodePort
   ports:
   - port: 4000
     targetPort: 4000
