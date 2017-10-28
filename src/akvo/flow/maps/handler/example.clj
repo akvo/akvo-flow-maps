@@ -30,11 +30,13 @@
       (update :headers create-response-headers)))
 
 (defmethod ig/init-key :akvo.flow.maps.handler/example [_ {:keys [http-proxy windshaft-url]}]
-  (context "/create-map" []
-    (POST "/" {:as req}
-      (->> (windshaft-request windshaft-url req)
-           (http-proxy/proxy-request http-proxy)
-           build-response))
-    (OPTIONS "/" {}
-      {:headers {"Access-Control-Allow-Origin"  "*"
-                 "Access-Control-Allow-Headers" "Content-Type"}})))
+  (context "/" []
+    (GET "/" [] {:status 200 :body "hi"})
+    (context "/create-map" []
+      (POST "/" {:as req}
+        (->> (windshaft-request windshaft-url req)
+             (http-proxy/proxy-request http-proxy)
+             build-response))
+      (OPTIONS "/" {}
+        {:headers {"Access-Control-Allow-Origin"  "*"
+                   "Access-Control-Allow-Headers" "Content-Type"}}))))
