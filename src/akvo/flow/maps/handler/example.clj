@@ -9,12 +9,12 @@
                        :method  request-method
                        :headers (-> headers
                                     (dissoc "host" "connection")
-                                    (assoc "X-DB-NAME" "a_tenant_db"
+                                    (assoc "X-DB-NAME" "flow_maps"
                                            "X-DB-LAST-UPDATE" "1000"
                                            "X-DB-PORT" "5432"
-                                           "X-DB-PASSWORD" "a_tenant_password"
-                                           "X-DB-USER" "a_tenant_user"
-                                           "X-DB-HOST" "postgres"))}]
+                                           "X-DB-PASSWORD" "flow_maps_password"
+                                           "X-DB-USER" "flow_maps_user"
+                                           "X-DB-HOST" "spicy-ugli.db.elephantsql.com"))}]
     (assoc proxy-request :body (json/generate-string body-params))))
 
 (defn create-response-headers [headers]

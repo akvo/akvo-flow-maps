@@ -12,7 +12,7 @@
 (defmethod ig/init-key ::consumer [_ {:keys [db]}]
   (info "Initializing Kafka Consumer...")
   (let [consumer (consumer/make-consumer
-                   {:bootstrap.servers       "kafka:29092"
+                   {:bootstrap.servers       "broker.kafka:9092"
                     :group.id                "the-consumer-test-101"
                     :client.id               "example-consumer_host_name_or_container_id"
                     :auto.offset.reset       :earliest
@@ -22,7 +22,7 @@
                    (deserializers/long-deserializer)
                    (doto
                      (KafkaAvroDeserializer.)
-                     (.configure {"schema.registry.url" "http://schema-registry:8081"} false))
+                     (.configure {"schema.registry.url" "http://schemas.kafka:80"} false))
                    {:poll-timeout-ms 1000})
         stop (atom false)]
     (cp/subscribe-to-partitions! consumer #".*datapoint.*")
