@@ -15,3 +15,4 @@ kubectl apply -f ci/namespace.yaml
 kubectl apply -f ci/redis-master-flow-maps.yaml
 kubectl apply -f ci/local/windshaft.yaml
 kubectl apply -f ci/local/flow-maps.yaml
+kubectl apply -f ci/local/ingress.yaml
