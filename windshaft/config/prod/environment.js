@@ -1,6 +1,6 @@
 module.exports.credentials_encryption_key= process.env.ENCRYPTION_KEY;
 module.exports.redis = {
-    host: 'redis-master-flow-maps',
+    host: 'redis-master-flow-maps.flow-maps',
     max: 10
 };
 module.exports.renderer = {
@@ -9,3 +9,4 @@ module.exports.renderer = {
         bufferSize: 0 // no need for a buffer as it is just useful if we have labels/tags in the map.
     }
 };
+module.exports.enable_cors = true;
