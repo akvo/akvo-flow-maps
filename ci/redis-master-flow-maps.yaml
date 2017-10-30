@@ -40,4 +40,4 @@ spec:
   selector:
     run: redis
     role: master
-    client: windshaft
+    client: flow-maps
