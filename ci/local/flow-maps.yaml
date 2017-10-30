@@ -1,9 +1,11 @@
 apiVersion: v1
 data:
   db-url: jdbc:postgresql://spicy-ugli.db.elephantsql.com/flow_maps?user=flow_maps_user&password=flow_maps_password&ssl=true
+  KAFKA_SCHEMA_REGISTRY: http://schemas.kafka:80
+  KAFKA_SERVERS: broker.kafka:9092
 kind: ConfigMap
 metadata:
-  name: maps-config
+  name: flow-maps-config
   namespace: flow-maps
 ---
 apiVersion: extensions/v1beta1
@@ -32,8 +34,18 @@ spec:
          - name: DATABASE_URL
            valueFrom:
              configMapKeyRef:
-               name: maps-config
+               name: flow-maps-config
                key: db-url
+         - name: KAFKA_SERVERS
+           valueFrom:
+             configMapKeyRef:
+               name: flow-maps-config
+               key: KAFKA_SERVERS
+         - name: KAFKA_SCHEMA_REGISTRY
+           valueFrom:
+             configMapKeyRef:
+               name: flow-maps-config
+               key: KAFKA_SCHEMA_REGISTRY
 ---
 apiVersion: v1
 kind: Service

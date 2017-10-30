@@ -13,7 +13,11 @@
   :http-proxy #ig/ref :akvo.flow.maps.boundary.http-proxy/http-client
   :windshaft-url "http://akvo-flow-maps-windshaft.flow-maps:4000/layergroup"}
 
- :akvo.flow.maps.kafka/consumer {:db #ig/ref :duct.database/sql}
+ :akvo.flow.maps.kafka/consumer
+ {:db #ig/ref :duct.database/sql
+  :bootstrap-servers #duct/env "KAFKA_SERVERS"
+  :max-poll-records #duct/env ["MAX_POLL_RECORDS" Int :or 100]
+  :schema-registry #duct/env "KAFKA_SCHEMA_REGISTRY"}
 
  :akvo.flow.maps.boundary.http-proxy/http-client
  {:connection-timeout   10000

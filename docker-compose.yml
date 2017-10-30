@@ -47,6 +47,9 @@ services:
     build:
      context: .
      dockerfile: Dockerfile-dev
+    environment:
+      KAFKA_SCHEMA_REGISTRY: http://schema-registry:8081
+      KAFKA_SERVERS: kafka:29092
     volumes:
       - .:/app
       - ~/.m2:/root/.m2

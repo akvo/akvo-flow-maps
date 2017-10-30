@@ -9,20 +9,20 @@
     [clojure.tools.logging :refer [info debug error]])
   (:import (io.confluent.kafka.serializers KafkaAvroDeserializer)))
 
-(defmethod ig/init-key ::consumer [_ {:keys [db]}]
+(defmethod ig/init-key ::consumer [_ {:keys [db bootstrap-servers max-poll-records schema-registry]}]
   (info "Initializing Kafka Consumer...")
   (let [consumer (consumer/make-consumer
-                   {:bootstrap.servers       "broker.kafka:9092"
+                   {:bootstrap.servers       bootstrap-servers
                     :group.id                "the-consumer-test-101"
                     :client.id               "example-consumer_host_name_or_container_id"
                     :auto.offset.reset       :earliest
                     :enable.auto.commit      true
-                    :max.poll.records        100
+                    :max.poll.records        max-poll-records
                     :auto.commit.interval.ms 10000}
                    (deserializers/long-deserializer)
                    (doto
                      (KafkaAvroDeserializer.)
-                     (.configure {"schema.registry.url" "http://schemas.kafka:80"} false))
+                     (.configure {"schema.registry.url" schema-registry} false))
                    {:poll-timeout-ms 1000})
         stop (atom false)]
     (cp/subscribe-to-partitions! consumer #".*datapoint.*")
