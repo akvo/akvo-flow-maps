@@ -7,7 +7,11 @@
     [thdr.kfk.avro-bridge.core :as avro]
     [cheshire.core :as json]
     [franzy.serialization.serializers :as serializers])
-  (:import (io.confluent.kafka.serializers KafkaAvroSerializer)))
+  (:import (io.confluent.kafka.serializers KafkaAvroSerializer)
+           (java.io ByteArrayOutputStream)
+           (org.apache.avro.io EncoderFactory)
+           (org.apache.avro.generic GenericDatumWriter)
+           (java.nio.charset Charset)))
 
 (comment
   (def p (producer/make-producer {:bootstrap.servers "kafka:29092"
@@ -81,6 +85,4 @@
                                                           :records      [{:value (json/parse-string (->avro-json value))}]})})]
                  (if (or (:error r) (not= (:code (:status r)) 200))
                    (throw (ex-info "" (assoc r :value value)))
-                   (println (:status r) (:body r))))))))
-
-  )
+                   (println (:status r) (:body r)))))))))
