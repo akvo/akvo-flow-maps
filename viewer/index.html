@@ -38,7 +38,7 @@
               });
               layers = [];
 
-              var baseURL = 'http://35.190.81.185/layergroup/' + token;
+              var baseURL = $('#tilesUrl').val() + token;
               var tileLayer = new L.tileLayer(baseURL + '/{z}/{x}/{y}.png');
               var osm = new L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 	                                {attribution: 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'});
@@ -71,7 +71,7 @@
                 var mapConfig = $('#mapconfig').val().replace(/[\r\n]/gm,"");
 
                 $.ajax({
-                  url: 'http://35.190.81.185/create-map',
+                  url: $('#createUrl').val(),
                   headers: {
                     'Content-Type': 'application/json',
                   },
@@ -107,7 +107,9 @@
 <input type="button" id="reset" value="reset">
 to default value
 </p>
-
+Create Map URL: <input type="text" size="40" id="createUrl" value="http://localhost:3000/create-map"> (TEST env: http://35.190.81.185/create-map)
+<br/>
+Map tiles url: <input type="text" size="40" id="tilesUrl" value="http://localhost:4000/layergroup/"> (TEST env: http://35.190.81.185/layergroup/)
 <p>
 <input type="button" id="update_map" value="Go">
 <br />
