@@ -1,5 +1,2 @@
 {:duct.core/environment :development
- :duct.core/include     ["akvo/flow/maps/config"]
-
- :duct.module/sql
- {:database-url "jdbc:postgresql://postgres/a_tenant_db?user=a_tenant_user&password=a_tenant_password"}}
+ :duct.core/include     ["akvo/flow/maps/config"]}

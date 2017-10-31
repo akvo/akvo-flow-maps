@@ -2,19 +2,30 @@
   (:require [compojure.core :refer :all]
             [integrant.core :as ig]
             [akvo.flow.maps.boundary.http-proxy :as http-proxy]
-            [cheshire.core :as json]))
+            ring.middleware.params
+            clojure.set
+            [cheshire.core :as json])
+  (:import (java.net URL)))
+
+
+(defn parse-jdbc [url]
+  (let [url (URL. (clojure.string/replace-first url "jdbc:postgresql" "http"))]
+    (-> (#'ring.middleware.params/parse-params (.getQuery url) "UTF-8")
+        (clojure.set/rename-keys {"user"     "X-DB-USER"
+                                  "password" "X-DB-PASSWORD"})
+        (dissoc "ssl")
+        (assoc "X-DB-HOST" (.getHost url)
+               "X-DB-NAME" (.substring (.getPath url) 1)))))
 
 (defn windshaft-request [windshaft-url {:keys [request-method headers body-params]}]
   (let [proxy-request {:url     windshaft-url
                        :method  request-method
                        :headers (-> headers
                                     (dissoc "host" "connection")
-                                    (assoc "X-DB-NAME" "flow_maps"
-                                           "X-DB-LAST-UPDATE" "1000"
-                                           "X-DB-PORT" "5432"
-                                           "X-DB-PASSWORD" "flow_maps_password"
-                                           "X-DB-USER" "flow_maps_user"
-                                           "X-DB-HOST" "spicy-ugli.db.elephantsql.com"))}]
+                                    (merge (parse-jdbc (System/getenv "DATABASE_URL"))
+                                           {"X-DB-LAST-UPDATE" "1000"
+                                            "X-DB-PORT"        "5432"}))}]
+    (println proxy-request)
     (assoc proxy-request :body (json/generate-string body-params))))
 
 (defn create-response-headers [headers]
