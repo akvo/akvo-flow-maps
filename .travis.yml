@@ -1,0 +1,20 @@
+language: node_js
+
+sudo: required
+
+services:
+  - docker
+
+cache:
+  directories:
+    - "${HOME}/.cache"
+    - "${HOME}/.m2"
+
+script:
+  - ./ci/test/build.sh
+
+after_failure:
+  - docker-compose -f docker-compose-ci.yml logs
+
+#after_success:
+#  - ./ci/deploy.sh
