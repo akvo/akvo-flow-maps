@@ -44,7 +44,7 @@ services:
     - "5432:5432"
 
   flow-maps:
-    image: "akvo/akvo-maps:${IMAGE_TAG}"
+    image: "eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps:$IMAGE_TAG"
     environment:
       KAFKA_SCHEMA_REGISTRY: http://schema-registry:8081
       KAFKA_SERVERS: kafka:29092
@@ -60,8 +60,8 @@ services:
   redis:
      image: redis:3.2.9
   windshaft:
-      image: "akvo/akvo-maps:${IMAGE_TAG}"
-      environment:
+     image: "eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-windshaft:$IMAGE_TAG"
+     environment:
        - LUMEN_ENCRYPTION_KEY=sadfjlaskdfjlsadkfmewmewm
        - PGSSLMODE=allow
      links:
