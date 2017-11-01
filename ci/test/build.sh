@@ -10,7 +10,7 @@ if [ -z "$TRAVIS_COMMIT" ]; then
 fi
 
 docker build --rm=false -t akvo-flow-dev:develop . -f Dockerfile-dev
-docker run -v $HOME/.m2:/root/.m2 -v `pwd`:/app akvo-flow-dev:develop lein uberjar
+docker run -v $HOME/.m2:/root/.m2 -v `pwd`:/app akvo-flow-dev:develop lein do test, uberjar
 
 ls -lrt target
 
@@ -21,7 +21,7 @@ docker build --rm=false -t eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-windshaft:$T
 docker tag eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-windshaft:$TRAVIS_COMMIT eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-windshaft:develop
 
 docker-compose -p akvo-flow-ci -f docker-compose-ci.yml up -d --build
-docker-compose -p akvo-flow-ci -f docker-compose-ci.yml run --no-deps tests lein test
+docker-compose -p akvo-flow-ci -f docker-compose-ci.yml run --no-deps tests lein test :integration
 
 rc=$?
 
