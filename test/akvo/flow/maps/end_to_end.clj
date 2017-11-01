@@ -1,4 +1,5 @@
 (ns akvo.flow.maps.end-to-end
+  {:integration true}
   (:require
     [franzy.clients.producer.client :as producer]
     [franzy.clients.producer.protocols :refer [send-sync! send-async!]]
