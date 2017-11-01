@@ -3,8 +3,8 @@ services:
   zookeeper:
     image: confluentinc/cp-zookeeper:3.3.0
     hostname: zookeeper
-    ports:
-      - '32181:32181'
+    expose:
+      - 32181
     environment:
       ZOOKEEPER_CLIENT_PORT: 32181
       ZOOKEEPER_TICK_TIME: 2000
@@ -12,9 +12,9 @@ services:
   kafka:
     image: confluentinc/cp-kafka:3.3.0
     hostname: kafka
-    ports:
-      - '9092:9092'
-      - '29092:29092'
+    expose:
+      - 9092
+      - 29092
     depends_on:
       - zookeeper
     environment:
@@ -32,8 +32,8 @@ services:
     depends_on:
       - zookeeper
       - kafka
-    ports:
-      - '8081:8081'
+    expose:
+      - 8081
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper:32181
@@ -54,20 +54,20 @@ services:
       - kafka
     links:
       - windshaft:akvo-flow-maps-windshaft.flow-maps
-    ports:
-      - "3000:3000"
+    expose:
+      - 3000
 
   redis:
      image: redis:3.2.9
   windshaft:
      image: "eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-windshaft:$IMAGE_TAG"
      environment:
-       - LUMEN_ENCRYPTION_KEY=sadfjlaskdfjlsadkfmewmewm
+       - ENCRYPTION_KEY=sadfjlaskdfjlsadkfmewmewm
        - PGSSLMODE=allow
      links:
         - redis:redis-master-flow-maps.flow-maps
-     ports:
-       - "4000:4000"
+     expose:
+       - 4000
 
   tests:
     image: akvo-flow-dev:develop
