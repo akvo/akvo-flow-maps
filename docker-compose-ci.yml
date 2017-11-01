@@ -44,7 +44,7 @@ services:
      - 5432
 
   flow-maps:
-    image: "eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps:$IMAGE_TAG"
+    image: "eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps:$TRAVIS_COMMIT"
     environment:
       KAFKA_SCHEMA_REGISTRY: http://schema-registry:8081
       KAFKA_SERVERS: kafka:29092
@@ -60,7 +60,7 @@ services:
   redis:
      image: redis:3.2.9
   windshaft:
-     image: "eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-windshaft:$IMAGE_TAG"
+     image: "eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-windshaft:$TRAVIS_COMMIT"
      environment:
        - ENCRYPTION_KEY=sadfjlaskdfjlsadkfmewmewm
        - PGSSLMODE=allow
