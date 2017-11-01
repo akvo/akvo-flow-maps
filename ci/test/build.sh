@@ -3,7 +3,7 @@
 set -e
 
 BRANCH_NAME="${TRAVIS_BRANCH:=unknown}"
-PROJECT_NAME=akvo-lumen
+export PROJECT_NAME=akvo-lumen
 
 if [ -z "$TRAVIS_COMMIT" ]; then
     export TRAVIS_COMMIT=local
