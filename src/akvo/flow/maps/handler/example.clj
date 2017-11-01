@@ -25,7 +25,6 @@
                                     (merge (parse-jdbc (System/getenv "DATABASE_URL"))
                                            {"X-DB-LAST-UPDATE" "1000"
                                             "X-DB-PORT"        "5432"}))}]
-    (println proxy-request)
     (assoc proxy-request :body (json/generate-string body-params))))
 
 (defn create-response-headers [headers]
