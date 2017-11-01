@@ -6,9 +6,9 @@
  :duct.module/sql {}
 
  :duct.router/cascading
- [#ig/ref :akvo.flow.maps.handler/example]
+ [#ig/ref :akvo.flow.maps.handler/create-map]
 
- :akvo.flow.maps.handler/example
+ :akvo.flow.maps.handler/create-map
  {:db #ig/ref :duct.database/sql
   :http-proxy #ig/ref :akvo.flow.maps.boundary.http-proxy/http-client
   :windshaft-url "http://akvo-flow-maps-windshaft.flow-maps:4000/layergroup"}

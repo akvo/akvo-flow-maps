@@ -1,4 +1,4 @@
-(ns akvo.flow.maps.handler.example
+(ns akvo.flow.maps.handler.create-map
   (:require [compojure.core :refer :all]
             [integrant.core :as ig]
             [akvo.flow.maps.boundary.http-proxy :as http-proxy]
@@ -39,7 +39,7 @@
       (update :status :code)
       (update :headers create-response-headers)))
 
-(defmethod ig/init-key :akvo.flow.maps.handler/example [_ {:keys [http-proxy windshaft-url]}]
+(defmethod ig/init-key :akvo.flow.maps.handler/create-map [_ {:keys [http-proxy windshaft-url]}]
   (context "/" []
     (GET "/" [] {:status 200 :body "hi"})
     (context "/create-map" []
