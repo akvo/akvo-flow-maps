@@ -116,4 +116,4 @@
                            (= datapoint-id (get-in (json-request
                                                      {:method :get
                                                       :url    (str "http://windshaft:4000/layergroup/" layer-group "/0/0/0/0.grid.json")})
-                                                   [:body :data :1 :id])))))))
+                                                   [:body :data :2 :id])))))))
