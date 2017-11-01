@@ -24,9 +24,10 @@ docker tag eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps:$IMAGE_TAG eu.gcr.io/${PROJE
 docker build --rm=false -t eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-windshaft:$IMAGE_TAG ./windshaft
 docker tag eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-windshaft:$IMAGE_TAG eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-windshaft:develop
 
-docker-compose -f docker-compose-ci.yml up -d --build
-docker-compose -f docker-compose-ci.yml run tests lein test
+docker-compose -p akvo-flow-ci -f docker-compose-ci.yml up -d --build
+docker-compose -p akvo-flow-ci -f docker-compose-ci.yml run tests lein test
+
 rc=$?
 
-docker-compose -f docker-compose-ci.yml down
+docker-compose -p akvo-flow-ci -f docker-compose-ci.yml down
 exit $rc
