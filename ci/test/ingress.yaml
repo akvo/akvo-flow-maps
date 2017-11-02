@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: flow-ingress
+  namespace: flow-maps
+spec:
+  backend:
+    serviceName: akvo-flow-maps-windshaft
+    servicePort: 4000
+  rules:
+  - http:
+      paths:
+      - path: /create-map
+        backend:
+          serviceName: flow-maps
+          servicePort: 3000
