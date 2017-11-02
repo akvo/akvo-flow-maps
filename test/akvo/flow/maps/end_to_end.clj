@@ -7,7 +7,7 @@
     [cheshire.core :as json]
     [franzy.serialization.serializers :as serializers]
     [akvo.flow.maps.boundary.http-proxy :as http]
-    [clojure.tools.logging :refer [info]]
+    [clojure.tools.logging :refer [info debug]]
     [clojure.test :refer :all]
     [clojure.java.jdbc :as jdbc]
     [clojure.test :as test])
@@ -17,15 +17,17 @@
 (defmacro try-for [how-long & body]
   `(let [start-time# (System/currentTimeMillis)]
      (loop []
-       (let [result# (do
-                       ~@body)]
-         (or result#
-             (if (> (* ~how-long 1000)
-                    (- (System/currentTimeMillis) start-time#))
-               (do
-                 (Thread/sleep 100)
-                 (recur))
-               result#))))))
+       (let [[status# return#] (try
+                                 (let [result# (do ~@body)]
+                                   [(if result# ::ok ::fail) result#])
+                                 (catch Throwable e# [::error e#]))
+             more-time# (> (* ~how-long 1000)
+                           (- (System/currentTimeMillis) start-time#))]
+         (cond
+           (= status# ::ok) return#
+           more-time# (recur)
+           (= status# ::fail) (throw (ex-info "Failed" {:last-result return#}))
+           (= status# ::error) (throw return#))))))
 
 (defn check-db-is-up [f]
   (try-for 60
@@ -73,28 +75,28 @@
                                           :max-connections    10}))
 
 (defn json-request [req]
-  (info "req -> " req)
+  (debug "req -> " req)
   (let [res (-> (http/proxy-request http-client
                                     (update req :headers merge {"content-type" "application/json"}))
                 (update :status :code)
                 (update :body (fn [body] (json/parse-string body true))))]
-    (info "resp -> " res)
+    (debug "resp -> " res)
+    (when (:error res)
+      (throw (ex-info "Error in response" res)))
     res))
 
 (defn create-map [datapoint-id]
-  (try-for 60
-           (json-request {:method :post
-                          :url    "http://flow-maps:3000/create-map"
-                          :body   (json/generate-string
-                                    {:version "1.5.0",
-                                     :layers  [{:type    "mapnik",
-                                                :options {:sql              (str "select * from datapoint where id='" datapoint-id "'"),
-                                                          :geom_column      "geom",
-                                                          :srid             4326,
-                                                          :cartocss         "#s { marker-width: 10; marker-fill: #e00050; }",
-                                                          :cartocss_version "2.0.0",
-                                                          :interactivity    "id"}}]})})))
-
+  (json-request {:method :post
+                 :url    "http://flow-maps:3000/create-map"
+                 :body   (json/generate-string
+                           {:version "1.5.0",
+                            :layers  [{:type    "mapnik",
+                                       :options {:sql              (str "select * from datapoint where id='" datapoint-id "'"),
+                                                 :geom_column      "geom",
+                                                 :srid             4326,
+                                                 :cartocss         "#s { marker-width: 10; marker-fill: #e00050; }",
+                                                 :cartocss_version "2.0.0",
+                                                 :interactivity    "id"}}]})}))
 
 (deftest happy-path
          (let [datapoint-id (str (UUID/randomUUID))
@@ -104,10 +106,13 @@
                                          :longitude             (- (rand (- 360 0.00001)) 180)
                                          :created-date-time     (System/currentTimeMillis)
                                          :last-update-date-time (System/currentTimeMillis)}))
-               response (create-map datapoint-id)
-               layer-group (-> response :body :layergroupid)]
-           (is (= 200 (:status response)))
-           (is (not (clojure.string/blank? layer-group)))
+               layer-group (try-for 60
+                                    (let [response (create-map datapoint-id)
+                                          layer-group (-> response :body :layergroupid)]
+                                      (and
+                                        (= 200 (:status response))
+                                        (not (clojure.string/blank? layer-group))
+                                        layer-group)))]
 
            (try-for 10
                     (let [tile (json-request
