@@ -34,10 +34,12 @@
    "Access-Control-Allow-Headers" "Content-Type"})
 
 (defn build-response [windshaft-response]
-  (-> windshaft-response
-      (select-keys [:status :body :headers])
-      (update :status :code)
-      (update :headers create-response-headers)))
+  (if (:error windshaft-response)
+    {:status 502}
+    (-> windshaft-response
+        (select-keys [:status :body :headers])
+        (update :status :code)
+        (update :headers create-response-headers))))
 
 (defmethod ig/init-key :akvo.flow.maps.handler/create-map [_ {:keys [http-proxy windshaft-url]}]
   (context "/" []
