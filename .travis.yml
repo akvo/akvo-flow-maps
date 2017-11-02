@@ -14,7 +14,7 @@ script:
   - ./ci/test/build.sh
 
 after_failure:
-  - PROJECT_NAME=akvo-lumen docker-compose -f docker-compose-ci.yml logs
+  - PROJECT_NAME=akvo-lumen docker-compose -p akvo-flow-ci -f docker-compose-ci.yml logs
 
 #after_success:
 #  - ./ci/deploy.sh
