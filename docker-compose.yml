@@ -8,6 +8,7 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 32181
       ZOOKEEPER_TICK_TIME: 2000
+      KAFKA_LOG4J_ROOT_LOGLEVEL: INFO
 
   kafka:
     image: confluentinc/cp-kafka:3.3.0
@@ -25,6 +26,7 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LOG4J_ROOT_LOGLEVEL: INFO
 
   schema-registry:
     image: confluentinc/cp-schema-registry:3.3.0
@@ -37,6 +39,7 @@ services:
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper:32181
+      SCHEMA_REGISTRY_LOG4J_ROOT_LOGLEVEL: INFO
 
   postgres:
    build: postgres
