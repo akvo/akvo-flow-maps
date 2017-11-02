@@ -99,25 +99,27 @@
 
 (deftest happy-path
          (let [datapoint-id (str (UUID/randomUUID))
-               _ (info (push-data-point {:identifier            datapoint-id
-                                         :survey-id             20
-                                         :latitude              (- (rand (- 160 0.00001)) 80)
-                                         :longitude             (- (rand (- 360 0.00001)) 180)
-                                         :created-date-time     (System/currentTimeMillis)
-                                         :last-update-date-time (System/currentTimeMillis)}))
+               datapoint {:identifier            datapoint-id
+                          :survey-id             20
+                          :latitude              (- (rand (- 160 0.00001)) 80)
+                          :longitude             (- (rand (- 360 0.00001)) 180)
+                          :created-date-time     (System/currentTimeMillis)
+                          :last-update-date-time (System/currentTimeMillis)}
+               _ (info (push-data-point datapoint))
                layer-group (try-for 60
                                     (let [response (create-map datapoint-id)
                                           layer-group (-> response :body :layergroupid)]
                                       (assert (= 200 (:status response)))
                                       (assert (not (clojure.string/blank? layer-group)))
                                       layer-group))]
-
+           (info "layer and datapoint" layer-group datapoint)
            (try-for 10
                     (let [tile (json-request
                                  {:method :get
                                   :url    (str "http://windshaft:4000/layergroup/" layer-group "/0/0/0/0.grid.json")})]
                       (assert (= 200 (:status tile)))
-                      (= datapoint-id (get-in (json-request
-                                                {:method :get
-                                                 :url    (str "http://windshaft:4000/layergroup/" layer-group "/0/0/0/0.grid.json")})
-                                              [:body :data :1 :id]))))))
+                      (assert (= datapoint-id (get-in (json-request
+                                                        {:method :get
+                                                         :url    (str "http://windshaft:4000/layergroup/" layer-group "/0/0/0/0.grid.json")})
+                                                      [:body :data :1 :id])))
+                      tile))))
