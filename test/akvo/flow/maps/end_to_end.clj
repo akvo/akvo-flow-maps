@@ -36,7 +36,8 @@
              true)))
 
 (defn check-db-is-up [f]
-  (try-for 60
+  (try-for "DB not ready"
+           60
            (jdbc/with-db-connection
              [conn {:connection-uri (System/getenv "DATABASE_URL")}]
              (jdbc/query conn ["select * from datapoint"])))
@@ -126,7 +127,8 @@
            (assert (= 200 (:status response)) "create map request failing")
            (assert (not (clojure.string/blank? layer-group)) "no layer group id?")
            (info "layer and datapoint" layer-group datapoint)
-           (try-for 60
+           (try-for "No data point"
+                    60
                     (let [tile (json-request
                                  {:method :get
                                   :url    (str "http://windshaft:4000/layergroup/" layer-group "/0/0/0/0.grid.json")})]
