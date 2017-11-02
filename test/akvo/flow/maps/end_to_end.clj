@@ -25,7 +25,7 @@
                            (- (System/currentTimeMillis) start-time#))]
          (cond
            (= status# ::ok) return#
-           more-time# (recur)
+           more-time# (do (Thread/sleep 1000) (recur))
            (= status# ::fail) (throw (ex-info "Failed" {:last-result return#}))
            (= status# ::error) (throw return#))))))
 
@@ -75,7 +75,6 @@
                                           :max-connections    10}))
 
 (defn json-request [req]
-  (debug "req -> " req)
   (let [res (-> (http/proxy-request http-client
                                     (update req :headers merge {"content-type" "application/json"}))
                 (update :status :code)
