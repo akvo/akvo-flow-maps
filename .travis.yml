@@ -15,6 +15,8 @@ before_install:
   - openssl aes-256-cbc -K $encrypted_1b7408c435c3_key -iv $encrypted_1b7408c435c3_iv -in ci/gcloud-service-account.json.enc -out ci/gcloud-service-account.json -d
   - if [[ ! -f "${HOME}/google-cloud-sdk/bin/gcloud" ]]; then
       rm -rf "${HOME}/google-cloud-sdk";
+      mkdir -p /home/travis/google-cloud-sdk/;
+      ls -lrt /home/travis/;
       curl https://sdk.cloud.google.com | bash;
     fi
 
