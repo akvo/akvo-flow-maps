@@ -12,8 +12,6 @@ fi
 docker build --rm=false -t akvo-flow-dev:develop . -f Dockerfile-dev
 docker run -v $HOME/.m2:/root/.m2 -v `pwd`:/app akvo-flow-dev:develop lein do test, uberjar
 
-ls -lrt target
-
 docker build --rm=false -t eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps:$TRAVIS_COMMIT .
 docker tag eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps:$TRAVIS_COMMIT eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps:develop
 
