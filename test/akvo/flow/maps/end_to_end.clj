@@ -108,17 +108,16 @@
                layer-group (try-for 60
                                     (let [response (create-map datapoint-id)
                                           layer-group (-> response :body :layergroupid)]
-                                      (and
-                                        (= 200 (:status response))
-                                        (not (clojure.string/blank? layer-group))
-                                        layer-group)))]
+                                      (assert (= 200 (:status response)))
+                                      (assert (not (clojure.string/blank? layer-group)))
+                                      layer-group))]
 
            (try-for 10
                     (let [tile (json-request
                                  {:method :get
                                   :url    (str "http://windshaft:4000/layergroup/" layer-group "/0/0/0/0.grid.json")})]
-                      (and (= 200 (:status tile))
-                           (= datapoint-id (get-in (json-request
-                                                     {:method :get
-                                                      :url    (str "http://windshaft:4000/layergroup/" layer-group "/0/0/0/0.grid.json")})
-                                                   [:body :data :2 :id])))))))
+                      (assert (= 200 (:status tile)))
+                      (= datapoint-id (get-in (json-request
+                                                {:method :get
+                                                 :url    (str "http://windshaft:4000/layergroup/" layer-group "/0/0/0/0.grid.json")})
+                                              [:body :data :1 :id]))))))
