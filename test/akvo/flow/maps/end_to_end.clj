@@ -126,7 +126,7 @@
            (assert (= 200 (:status response)) "create map request failing")
            (assert (not (clojure.string/blank? layer-group)) "no layer group id?")
            (info "layer and datapoint" layer-group datapoint)
-           (try-for 10
+           (try-for 30
                     (let [tile (json-request
                                  {:method :get
                                   :url    (str "http://windshaft:4000/layergroup/" layer-group "/0/0/0/0.grid.json")})]
