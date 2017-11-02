@@ -23,6 +23,7 @@ gcloud auth activate-service-account --key-file ci/gcloud-service-account.json
 gcloud config set project akvo-lumen
 gcloud config set container/cluster europe-west1-d
 gcloud config set compute/zone europe-west1-d
+gcloud config set container/use_client_certificate True
 
 if [[ "${TRAVIS_BRANCH}" == "master" ]]; then
     gcloud container clusters get-credentials test
