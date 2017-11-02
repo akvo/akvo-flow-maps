@@ -12,9 +12,10 @@
     [clojure.java.jdbc :as jdbc]
     [clojure.test :as test])
   (:import (io.confluent.kafka.serializers KafkaAvroSerializer)
-           (java.util UUID)))
+           (java.util UUID)
+           (java.net Socket)))
 
-(defmacro try-for [how-long & body]
+(defmacro try-for [msg how-long & body]
   `(let [start-time# (System/currentTimeMillis)]
      (loop []
        (let [[status# return#] (try
@@ -26,8 +27,13 @@
          (cond
            (= status# ::ok) return#
            more-time# (do (Thread/sleep 1000) (recur))
-           (= status# ::fail) (throw (ex-info "Failed" {:last-result return#}))
-           (= status# ::error) (throw return#))))))
+           (= status# ::fail) (throw (ex-info (str "Failed: " ~msg) {:last-result return#}))
+           (= status# ::error) (throw (RuntimeException. (str "Failed: " ~msg) return#)))))))
+
+(defn wait-for-server [host port]
+  (try-for (str "Nobody listening at " host ":" port) 60
+           (with-open [_ (Socket. host (int port))]
+             true)))
 
 (defn check-db-is-up [f]
   (try-for 60
@@ -36,7 +42,16 @@
              (jdbc/query conn ["select * from datapoint"])))
   (f))
 
+(defn check-servers-up [f]
+  (wait-for-server "windshaft" 4000)
+  (wait-for-server "flow-maps" 3000)
+  (wait-for-server "redis" 6379)
+  (wait-for-server "schema-registry" 8081)
+  (wait-for-server "kafka" 29092)
+  (f))
+
 (test/use-fixtures :once check-db-is-up)
+(test/use-fixtures :once check-servers-up)
 
 (def DataPointSchema-as-json
   (json/generate-string
@@ -106,12 +121,10 @@
                           :created-date-time     (System/currentTimeMillis)
                           :last-update-date-time (System/currentTimeMillis)}
                _ (info (push-data-point datapoint))
-               layer-group (try-for 60
-                                    (let [response (create-map datapoint-id)
-                                          layer-group (-> response :body :layergroupid)]
-                                      (assert (= 200 (:status response)) "create map request failing")
-                                      (assert (not (clojure.string/blank? layer-group)) "no layer group id?")
-                                      layer-group))]
+               response (create-map datapoint-id)
+               layer-group (-> response :body :layergroupid)]
+           (assert (= 200 (:status response)) "create map request failing")
+           (assert (not (clojure.string/blank? layer-group)) "no layer group id?")
            (info "layer and datapoint" layer-group datapoint)
            (try-for 10
                     (let [tile (json-request
