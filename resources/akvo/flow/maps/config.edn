@@ -15,8 +15,9 @@
 
  :akvo.flow.maps.kafka/consumer
  {:db #ig/ref :duct.database/sql
-  :bootstrap-servers #duct/env "KAFKA_SERVERS"
-  :max-poll-records #duct/env ["MAX_POLL_RECORDS" Int :or 100]
+  :consumer-properties {:bootstrap.servers #duct/env "KAFKA_SERVERS"
+                        :max.poll.records #duct/env ["MAX_POLL_RECORDS" Int :or 100]
+                        :metadata.max.age.ms #duct/env ["METADATA_MAX_AGE_MS" Int :or 60000]}
   :schema-registry #duct/env "KAFKA_SCHEMA_REGISTRY"}
 
  :akvo.flow.maps.boundary.http-proxy/http-client

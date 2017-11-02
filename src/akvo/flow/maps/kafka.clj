@@ -9,16 +9,15 @@
     [clojure.tools.logging :refer [info debug error]])
   (:import (io.confluent.kafka.serializers KafkaAvroDeserializer)))
 
-(defmethod ig/init-key ::consumer [_ {:keys [db bootstrap-servers max-poll-records schema-registry]}]
+(defmethod ig/init-key ::consumer [_ {:keys [db schema-registry consumer-properties]}]
   (info "Initializing Kafka Consumer...")
   (let [consumer (consumer/make-consumer
-                   {:bootstrap.servers       bootstrap-servers
-                    :group.id                "the-consumer-test-101"
-                    :client.id               "example-consumer_host_name_or_container_id"
-                    :auto.offset.reset       :earliest
-                    :enable.auto.commit      true
-                    :max.poll.records        max-poll-records
-                    :auto.commit.interval.ms 10000}
+                   (merge {:group.id                "the-consumer-test-101"
+                           :client.id               "example-consumer_host_name_or_container_id"
+                           :auto.offset.reset       :earliest
+                           :enable.auto.commit      true
+                           :auto.commit.interval.ms 10000}
+                          consumer-properties)
                    (deserializers/long-deserializer)
                    (doto
                      (KafkaAvroDeserializer.)
