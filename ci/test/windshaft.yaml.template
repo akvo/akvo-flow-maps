@@ -1,7 +1,8 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: keycloak
+  name: akvo-flow-maps-windshaft
+  namespace: flow-maps
 type: Opaque
 data:
   encryption_key: c3VwZXJzZWNyZXQ=
