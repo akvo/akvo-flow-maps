@@ -81,11 +81,11 @@
       (KafkaAvroSerializer.)
       (.configure {"schema.registry.url" (System/getenv "KAFKA_SCHEMA_REGISTRY")} false))))
 
-(defn push-data-point [data-point]
+(defn push-data-point [data-point topic]
   (with-open [producer (create-producer)]
     (send-sync!
       producer
-      {:topic (str "org.akvo.akvoflowsandbox.datapoint")
+      {:topic (str topic ".datapoint")
        :key   (get data-point "surveyId")
        :value (avro/->java DataPointSchema data-point)})))
 
@@ -103,7 +103,7 @@
       (throw (ex-info "Error in response" res)))
     res))
 
-(defn create-map [datapoint-id]
+(defn create-map [datapoint-id topic]
   (json-request {:method :post
                  :url    "http://flow-maps:3000/create-map"
                  :body   (json/generate-string
@@ -116,29 +116,55 @@
                                                  :cartocss_version "2.0.0",
                                                  :interactivity    "id"}}]})}))
 
-(deftest happy-path
-         (let [datapoint-id (str (UUID/randomUUID))
-               datapoint {:identifier            datapoint-id
-                          :survey-id             20
-                          :latitude              (- (rand (- 160 0.00001)) 80)
-                          :longitude             (- (rand (- 360 0.00001)) 180)
-                          :created-date-time     (System/currentTimeMillis)
-                          :last-update-date-time (System/currentTimeMillis)}
-               _ (info (push-data-point datapoint))
-               response (create-map datapoint-id)
-               layer-group (-> response :body :layergroupid)]
-           (assert (= 200 (:status response)) "create map request failing")
-           (assert (not (clojure.string/blank? layer-group)) "no layer group id?")
-           (info "layer and datapoint" layer-group datapoint)
-           (try-for "No data point"
-                    30
-                    (let [tile (json-request
-                                 {:method :get
-                                  :url    (str "http://windshaft:4000/layergroup/" layer-group "/0/0/0/0.grid.json")})]
-                      (assert (= 200 (:status tile)) "tile request failing")
-                      (assert (= datapoint-id (get-in (json-request
-                                                        {:method :get
-                                                         :url    (str "http://windshaft:4000/layergroup/" layer-group "/0/0/0/0.grid.json")})
-                                                      [:body :data :1 :id]))
-                              "data point not found in map")
-                      tile))))
+(defn random-id []
+  (str (UUID/randomUUID)))
+
+(defn random-data-point []
+  {:identifier            (random-id)
+   :latitude              (- (rand (- 160 0.00001)) 80)
+   :longitude             (- (rand (- 360 0.00001)) 180)
+   :survey-id             20
+   :created-date-time     (System/currentTimeMillis)
+   :last-update-date-time (System/currentTimeMillis)})
+
+(defn ids-in-tile [tile]
+  (->> tile :body :data vals (map :id) set))
+
+(defn map-has [datapoint topic]
+  (let [response (create-map (:identifier datapoint) topic)
+        layer-group (-> response :body :layergroupid)]
+    (assert (= 200 (:status response)) "create map request failing")
+    (assert (not (clojure.string/blank? layer-group)) "no layer group id?")
+    (info "layer and datapoint" layer-group datapoint)
+    (try-for "No data point"
+             30
+             (let [tile (json-request
+                          {:method :get
+                           :url    (str "http://windshaft:4000/layergroup/" layer-group "/0/0/0/0.grid.json")})]
+               (assert (= 200 (:status tile)) "tile request failing")
+               (assert (= (:identifier datapoint) (first (ids-in-tile tile))) "data point not found in map")
+               tile))))
+
+(defn map-has-not [datapoint topic]
+  (let [response (create-map (:identifier datapoint) topic)
+        layer-group (-> response :body :layergroupid)]
+    (assert (= 200 (:status response)) "create map request failing")
+    (assert (not (clojure.string/blank? layer-group)) "no layer group id?")
+    (info "layer and datapoint" layer-group datapoint)
+    (let [tile (json-request
+                 {:method :get
+                  :url    (str "http://windshaft:4000/layergroup/" layer-group "/0/0/0/0.grid.json")})]
+      (assert (= 200 (:status tile)) "tile request failing")
+      (assert (empty? (ids-in-tile tile)) "data point found in map")
+      tile)))
+
+(deftest do-not-mix-data-from-different-topics
+         (let [datapoint (random-data-point)
+               datapoint-topic-a (assoc datapoint :identifier (random-id))
+               datapoint-topic-b (assoc datapoint :identifier (random-id))
+               _ (info (push-data-point datapoint-topic-a "topic-a"))
+               _ (info (push-data-point datapoint-topic-b "topic-b"))]
+           (map-has datapoint-topic-a "topic-a")
+           (map-has datapoint-topic-b "topic-b")
+           (map-has-not datapoint-topic-b "topic-a")
+           (map-has-not datapoint-topic-a "topic-b")))
