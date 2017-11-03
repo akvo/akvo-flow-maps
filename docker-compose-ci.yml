@@ -47,7 +47,7 @@ services:
      - 5432
 
   flow-maps:
-    image: "eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps:$TRAVIS_COMMIT"
+    image: "eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-consumer:$TRAVIS_COMMIT"
     environment:
       KAFKA_SCHEMA_REGISTRY: http://schema-registry:8081
       KAFKA_SERVERS: kafka:29092
