@@ -1,6 +1,6 @@
 module.exports.credentials_encryption_key= process.env.ENCRYPTION_KEY;
 module.exports.redis = {
-    host: 'redis-master-flow-maps.flow-maps',
+    host: 'flow-maps-redis-master.flow-maps',
     max: 10
 };
 module.exports.renderer = {

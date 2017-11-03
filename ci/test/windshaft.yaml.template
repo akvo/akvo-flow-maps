@@ -1,17 +1,17 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: akvo-flow-maps-windshaft
+  name: flow-maps-windshaft
   namespace: flow-maps
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        run: akvo-flow-maps-windshaft
+        run: flow-maps-windshaft
     spec:
       containers:
-      - name: akvo-flow-maps-windshaft
+      - name: flow-maps-windshaft
         image: eu.gcr.io/akvo-lumen/akvo-flow-maps-windshaft:$TRAVIS_COMMIT
         ports:
         - containerPort: 4000
@@ -24,20 +24,20 @@ spec:
         - name: ENCRYPTION_KEY
           valueFrom:
             secretKeyRef:
-              name: akvo-flow-maps-windshaft
+              name: flow-maps-windshaft
               key: encryption_key
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: akvo-flow-maps-windshaft
+  name: flow-maps-windshaft
   namespace: flow-maps
   labels:
-    run: akvo-flow-maps-windshaft
+    run: flow-maps-windshaft
 spec:
   type: NodePort
   ports:
   - port: 4000
     targetPort: 4000
   selector:
-    run: akvo-flow-maps-windshaft
+    run: flow-maps-windshaft

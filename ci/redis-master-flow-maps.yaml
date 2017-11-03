@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: redis-master-flow-maps
+  name: flow-maps-redis-master
   namespace: flow-maps
 spec:
   replicas: 1
@@ -27,7 +27,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis-master-flow-maps
+  name: flow-maps-redis-master
   namespace: flow-maps
   labels:
     run: redis

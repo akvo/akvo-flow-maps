@@ -64,7 +64,7 @@ services:
       - postgres
       - kafka
     links:
-      - windshaft:akvo-flow-maps-windshaft.flow-maps
+      - windshaft:flow-maps-windshaft.flow-maps
     ports:
       - "47480:47480"
       - "3000:3000"
@@ -80,6 +80,6 @@ services:
     volumes:
        - ./windshaft/config/dev:/config
     links:
-       - redis:redis-master-flow-maps.flow-maps
+       - redis:flow-maps-redis-master.flow-maps
     ports:
       - "4000:4000"

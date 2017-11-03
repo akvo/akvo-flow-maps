@@ -4,24 +4,24 @@ data:
   KAFKA_SERVERS: broker.kafka:9092
 kind: ConfigMap
 metadata:
-  name: flow-maps-config
+  name: flow-maps-consumer
   namespace: flow-maps
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: flow-maps
+  name: flow-maps-consumer
   namespace: flow-maps
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        run: flow-maps
+        run: flow-maps-consumer
     spec:
       containers:
-      - name: flow-maps
-        image: eu.gcr.io/akvo-lumen/akvo-flow-maps:$TRAVIS_COMMIT
+      - name: flow-maps-consumer
+        image: eu.gcr.io/akvo-lumen/akvo-flow-maps-consumer:$TRAVIS_COMMIT
         ports:
         - containerPort: 3000
         resources:
@@ -33,30 +33,30 @@ spec:
          - name: DATABASE_URL
            valueFrom:
              secretKeyRef:
-               name: flow-maps-secrets
+               name: flow-maps-consumer
                key: db-url
          - name: KAFKA_SERVERS
            valueFrom:
              configMapKeyRef:
-               name: flow-maps-config
+               name: flow-maps-consumer
                key: KAFKA_SERVERS
          - name: KAFKA_SCHEMA_REGISTRY
            valueFrom:
              configMapKeyRef:
-               name: flow-maps-config
+               name: flow-maps-consumer
                key: KAFKA_SCHEMA_REGISTRY
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: flow-maps
+  name: flow-maps-consumer
   namespace: flow-maps
   labels:
-    run: flow-maps
+    run: flow-maps-consumer
 spec:
   type: NodePort
   ports:
   - port: 3000
     targetPort: 3000
   selector:
-    run: flow-maps
+    run: flow-maps-consumer

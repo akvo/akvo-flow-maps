@@ -57,7 +57,7 @@ services:
       - postgres
       - kafka
     links:
-      - windshaft:akvo-flow-maps-windshaft.flow-maps
+      - windshaft:flow-maps-windshaft.flow-maps
     expose:
       - 3000
 
@@ -69,7 +69,7 @@ services:
        - ENCRYPTION_KEY=sadfjlaskdfjlsadkfmewmewm
        - PGSSLMODE=allow
      links:
-        - redis:redis-master-flow-maps.flow-maps
+        - redis:flow-maps-redis-master.flow-maps
      expose:
        - 4000
 

@@ -32,7 +32,7 @@ else
 fi
 
 # Pushing images
-gcloud docker -- push eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps
+gcloud docker -- push eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-consumer
 gcloud docker -- push eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-windshaft
 
 # Deploying
