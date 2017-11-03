@@ -70,16 +70,19 @@
 
 (def DataPointSchema (avro/parse-schema DataPointSchema-as-json))
 
+(defn create-producer []
+  (producer/make-producer
+    {:bootstrap.servers (System/getenv "KAFKA_SERVERS")
+     :acks              "all"
+     :retries           1
+     :client.id         "test-producer"}
+    (serializers/long-serializer)
+    (doto
+      (KafkaAvroSerializer.)
+      (.configure {"schema.registry.url" (System/getenv "KAFKA_SCHEMA_REGISTRY")} false))))
+
 (defn push-data-point [data-point]
-  (with-open [producer (producer/make-producer
-                         {:bootstrap.servers (System/getenv "KAFKA_SERVERS")
-                          :acks              "all"
-                          :retries           1
-                          :client.id         "test-producer"}
-                         (serializers/long-serializer)
-                         (doto
-                           (KafkaAvroSerializer.)
-                           (.configure {"schema.registry.url" (System/getenv "KAFKA_SCHEMA_REGISTRY")} false)))]
+  (with-open [producer (create-producer)]
     (send-sync!
       producer
       {:topic (str "org.akvo.akvoflowsandbox.datapoint")
