@@ -42,6 +42,6 @@ sed -e "s/\$TRAVIS_COMMIT/$TRAVIS_COMMIT/" ci/test/windshaft.yaml.template > win
 
 kubectl apply -f ci/namespace.yaml
 kubectl apply -f ci/redis-master-flow-maps.yaml
-kubectl apply -f ci/test/windshaft.yaml
-kubectl apply -f ci/test/flow-maps.yaml
+kubectl apply -f windshaft.yaml
+kubectl apply -f flow-maps.yaml
 kubectl apply -f ci/test/ingress.yaml
