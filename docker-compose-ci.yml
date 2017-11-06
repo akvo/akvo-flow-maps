@@ -52,7 +52,7 @@ services:
       KAFKA_SCHEMA_REGISTRY: http://schema-registry:8081
       KAFKA_SERVERS: kafka:29092
       METADATA_MAX_AGE_MS: 500
-      DATABASE_URL: "jdbc:postgresql://postgres/a_tenant_db?user=a_tenant_user&password=a_tenant_password"
+      DATABASE_URL: "jdbc:postgresql://postgres/master_db?user=dbuser&password=dbpassword"
     depends_on:
       - postgres
       - kafka
@@ -78,7 +78,7 @@ services:
     environment:
       KAFKA_SCHEMA_REGISTRY: http://schema-registry:8081
       KAFKA_SERVERS: kafka:29092
-      DATABASE_URL: "jdbc:postgresql://postgres/a_tenant_db?user=a_tenant_user&password=a_tenant_password"
+      DATABASE_URL: "jdbc:postgresql://postgres/master_db?user=dbuser&password=dbpassword"
     volumes:
       - .:/app
       - ~/.m2:/root/.m2
