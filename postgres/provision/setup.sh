@@ -14,15 +14,10 @@ cd $DIR
 # Provision
 
 ## Create lumen role
-psql -c "CREATE ROLE dbuser WITH PASSWORD 'dbpassword' CREATEDB LOGIN;"
-psql -c "CREATE ROLE a_tenant_user WITH PASSWORD 'a_tenant_password' CREATEDB LOGIN;"
+psql -c "CREATE ROLE dbuser WITH PASSWORD 'dbpassword' CREATEDB CREATEROLE SUPERUSER LOGIN;"
 
 ## Create lumen dbs
 psql -f $DIR/helpers/create-database.sql
-
-## Create extensions for dbs
-psql -d a_tenant_db -f $DIR/helpers/create-extensions.sql
-psql -U a_tenant_user -d a_tenant_db -f $DIR/helpers/a-tenant-db.sql
 
 echo ""
 echo "----------"
