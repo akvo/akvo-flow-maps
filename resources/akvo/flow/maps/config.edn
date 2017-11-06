@@ -5,6 +5,10 @@
  :duct.module.web/api {}
  :duct.module/sql {}
 
+ :duct.migrator/ragtime {:migrations ^:replace #ig/ref :akvo.flow.maps.boundary.master-db/migration}
+
+ :akvo.flow.maps.boundary.master-db/migration {}
+
  :duct.router/cascading
  [#ig/ref :akvo.flow.maps.handler/create-map]
 
@@ -25,6 +29,4 @@
   :request-timeout      10000
   :read-timeout         10000
   :max-connections      10
-  :idle-in-pool-timeout 60000}
-
-}
+  :idle-in-pool-timeout 60000}}
