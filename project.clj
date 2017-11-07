@@ -19,6 +19,7 @@
                  [io.confluent/kafka-avro-serializer "3.3.0" :exclusions [org.slf4j/slf4j-log4j12]]
                  [mastondonc/franzy "0.0.3"]
                  [org.postgresql/postgresql "42.1.4"]
+                 [com.layerware/hugsql "0.4.8"]
                  [io.thdr/kfk.avro-bridge "0.1.0-SNAPSHOT"]]
   :plugins [[duct/lein-duct "0.10.3"]]
   :uberjar-name "akvo-flow-maps.jar"

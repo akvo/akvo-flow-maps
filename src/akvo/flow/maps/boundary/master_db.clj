@@ -1,16 +1,18 @@
 (ns akvo.flow.maps.boundary.master-db
   (:require
     [integrant.core :as ig]
-    [clojure.java.jdbc :as jdbc]
     ring.middleware.params
     clojure.set
     clojure.string
     clojure.walk
-    ragtime.jdbc)
+    ragtime.jdbc
+    [hugsql.core :as hugsql])
   (:import (java.net URL)
            (org.postgresql.util PSQLException)))
 
-(defmethod ig/init-key ::migration [_ config]
+(hugsql/def-db-fns "akvo/flow/maps/boundary/masterdb.sql")
+
+(defmethod ig/init-key ::migÚration [_ config]
   (ragtime.jdbc/load-resources "akvo/flow/maps/db"))
 
 (def parse-postgres-jdbc
@@ -23,13 +25,6 @@
                      :host (.getHost url)
                      :dbname (.substring (.getPath url) 1))
                    clojure.walk/keywordize-keys)))))
-
-(defn exec!
-  "Execute SQL expression"
-  [db-uri format-str & args]
-  (jdbc/execute! db-uri
-                 [(apply format format-str args)]
-                 {:transaction? false}))
 
 (defn random-str
   ([] (random-str 36))
@@ -53,45 +48,33 @@
                                (throw e#)))))
 
 (defn assign-user-and-password [master-db tenant]
-  (jdbc/execute! master-db ["insert into tenants (tenant, username, password, db_creation_state) VALUES (?, ?, ?, ?) on conflict(tenant) do nothing"
-                            tenant (clojure.string/lower-case (random-str)) (random-str) "creating"])
-  (first (jdbc/query master-db ["select username,password from tenants where tenant = ?" tenant])))
+  (insert-tenant master-db {:tenant tenant
+                            :username (clojure.string/lower-case (random-str))
+                            :password (random-str)
+                            :db-creation-state "creating"})
+  (get-tenant-credentials master-db {:tenant tenant}))
 
 (defn mark-as-done [master-db tenant]
-  (jdbc/execute! master-db ["update tenants set db_creation_state = ? where tenant = ?"
-                            "done" tenant]))
+  (update-tenant-state master-db {:tenant tenant
+                                  :db-creation-state "done"}))
 
 (defn create-role-and-db [master-db tenant-db-name tenant-username tenant-password]
   (ignore-exception #".*role .* already exists.*"
-    (exec! master-db "CREATE ROLE %s WITH PASSWORD '%s' LOGIN;" tenant-username tenant-password))
+    (create-role master-db {:username tenant-username
+                            :password tenant-password}))
 
   (ignore-exception #".*database .* already exists.*"
-    (exec! master-db "CREATE DATABASE %s WITH OWNER = %s
-                      TEMPLATE = template0
-                      ENCODING = 'UTF8'
-                      LC_COLLATE = 'en_US.UTF-8'
-                      LC_CTYPE = 'en_US.UTF-8'" tenant-db-name tenant-username))
+    (create-db master-db {:dbname tenant-db-name :owner tenant-username} {} {:transaction? false}))
 
-  (exec! (assoc (parse-postgres-jdbc master-db) :dbname tenant-db-name)
-         "CREATE EXTENSION IF NOT EXISTS btree_gist WITH SCHEMA public;
-          CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
-          CREATE EXTENSION IF NOT EXISTS tablefunc WITH SCHEMA public;
-          CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;"))
+  (create-extensions (assoc (parse-postgres-jdbc master-db) :dbname tenant-db-name)))
 
 (defn create-tables [tenant-db]
-  (exec! tenant-db
-         "CREATE TABLE IF NOT EXISTS datapoint (
-                 id text PRIMARY KEY,
-                 survey_id text,
-                 last_update_date_time timestamptz,
-                 created_date_time timestamptz);")
+  (create-db-tables tenant-db)
 
   (ignore-exception #"(?s).*column \"geom\" of relation \"datapoint\" already exists.*"
-    (jdbc/query tenant-db
-                ["SELECT AddGeometryColumn('datapoint','geom','4326','POINT',2);"]
-                {:transaction? false}))
+    (add-geom-column tenant-db))
 
-  (exec! tenant-db "CREATE INDEX ON datapoint USING GIST(geom);"))
+  (create-indices tenant-db))
 
 (defn create-tenant-db [master-db tenant]
   (let [{tenant-username :username tenant-password :password} (assign-user-and-password master-db tenant)
@@ -107,10 +90,6 @@
 
 (comment
 
-  (require 'ragtime.repl)
-  (ragtime.repl/migrate {:datastore  (ragtime.jdbc/sql-database (dev/db))
-                         :migrations (ragtime.jdbc/load-resources "akvo/flow/maps/db")})
-
-  (>/print-table (jdbc/query (dev/db) "select * from tenants"))
-  (>/print-table (jdbc/query (dev/db) "select * from pg_roles"))
-  )
+  (let [tenant (str "avlkmasdlkvm" (System/currentTimeMillis))]
+    (create-tenant-db (System/getenv "DATABASE_URL") tenant)
+    (create-tenant-db (System/getenv "DATABASE_URL") tenant)))
