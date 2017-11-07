@@ -14,12 +14,11 @@
 
 (defn ->db-value [record]
   (-> record
-      (clojure.set/rename-keys {:identifier :id})
       (update :created-date-time ->db-timestamp)
       (update :last-update-date-time ->db-timestamp)))
 
 (defn valid? [record]
-  (and (:id record)
+  (and (:identifier record)
        (:latitude record)
        (:longitude record)
        (:survey-id record)))
@@ -28,7 +27,7 @@
   (when-let [db-datapoints (->> datapoints
                                 (map ->db-value)
                                 (filter valid?)
-                                (map (juxt :id :survey-id :last-update-date-time :created-date-time :longitude :latitude
+                                (map (juxt :identifier :survey-id :last-update-date-time :created-date-time :longitude :latitude
                                            :survey-id :last-update-date-time :created-date-time :longitude :latitude :id))
                                 seq)]
     (jdbc/execute! db
