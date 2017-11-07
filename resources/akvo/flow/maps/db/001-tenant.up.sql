@@ -1,6 +1,6 @@
 CREATE TABLE tenants (
     id serial,
-    tenant text,
+    tenant text NOT NULL UNIQUE,
     username text,
     password text,
     db_uri text,
