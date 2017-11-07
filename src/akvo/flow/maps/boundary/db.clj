@@ -1,12 +1,16 @@
 (ns akvo.flow.maps.boundary.db
   (:require
     clojure.set
-    [clojure.java.jdbc :as jdbc]))
+    [integrant.core :as ig]
+    [clojure.java.jdbc :as jdbc]
+    ragtime.jdbc
+    [hugsql.core :as hugsql]
+    [clojure.string :as s]
+    [clojure.string :as string]
+    [hugsql.parameters :as parameters]))
 
-(comment
-  (jdbc/execute! (dev/db) ["DELETE from datapoint"])
-  (jdbc/query (dev/db) ["select count(*) from datapoint"])
-  )
+(hugsql/def-db-fns "akvo/flow/maps/boundary/datapoints.sql")
+(hugsql/def-sqlvec-fns "akvo/flow/maps/boundary/datapoints.sql")
 
 (defn ->db-timestamp [v]
   (when v
@@ -28,15 +32,19 @@
   (when-let [db-datapoints (->> datapoints
                                 (map ->db-value)
                                 (filter valid?)
-                                (map (juxt :id :survey-id :last-update-date-time :created-date-time :longitude :latitude
-                                           :survey-id :last-update-date-time :created-date-time :longitude :latitude :id))
                                 seq)]
-    (jdbc/execute! db
-                   (into ["insert into datapoint(id, survey_id, created_date_time, last_update_date_time, geom)
-                                 values (?, ?, ?, ?, ST_SetSRID(ST_MakePoint(?, ?), 4326))
-                                 ON conflict(id)
-                         do update set (survey_id, created_date_time, last_update_date_time, geom) = (?, ?, ?, ST_SetSRID(ST_MakePoint(?, ?), 4326))
-                            where datapoint.id = ?"]
-                         db-datapoints)
-                   {:transaction? true
-                    :multi?       true})))
+    (let [[x & xs] db-datapoints
+          [sql & first-row] (upsert-datapoint-sqlvec x)
+          other-rows (mapv (comp rest upsert-datapoint-sqlvec) xs)]
+      (jdbc/execute! db
+                     (into [sql first-row] other-rows)
+                     {:transaction? true
+                      :multi?       true}))))
+
+(comment
+  (time
+    (dotimes [_ 10]
+      (do
+        (insert-batch "jdbc:postgresql://postgres/avlkmasdlkvm1510061891540?user=dnxbtrsqco5sdnklrfkzbbvme4zyx9izqwjvs&password=pEdfR8_b4n2dDMAQl10O3hTDyBPhNk1d5vbFN"
+                      inserts)
+        :done))))
