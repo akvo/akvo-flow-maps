@@ -26,7 +26,7 @@ CREATE ROLE :i:username WITH PASSWORD ':i:password' LOGIN;
 
 -- :name create-db-tables :!
 CREATE TABLE IF NOT EXISTS datapoint (
-    id text PRIMARY KEY,
+    identifier text PRIMARY KEY,
     survey_id text,
     last_update_date_time timestamptz,
     created_date_time timestamptz);
