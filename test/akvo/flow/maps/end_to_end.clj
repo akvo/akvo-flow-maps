@@ -135,22 +135,7 @@
 (defn ids-in-tile [tile]
   (->> tile :body :data vals (map :identifier) set))
 
-(defn map-has [datapoint topic]
-  (try-for
-    "Maps not working!" 60
-    (let [response (create-map (:identifier datapoint) topic)
-          layer-group (-> response :body :layergroupid)]
-      (assert (= 200 (:status response)) "create map request failing")
-      (assert (not (clojure.string/blank? layer-group)) "no layer group id?")
-      (info "layer and datapoint" layer-group datapoint)
-      (let [tile (json-request
-                   {:method :get
-                    :url    (str "http://windshaft:4000/layergroup/" layer-group "/0/0/0/0.grid.json")})]
-        (assert (= 200 (:status tile)) "tile request failing")
-        (assert (= (:identifier datapoint) (first (ids-in-tile tile))) "data point not found in map")
-        tile))))
-
-(defn map-has-not [datapoint topic]
+(defn create-map-and-get-tile [datapoint topic]
   (let [response (create-map (:identifier datapoint) topic)
         layer-group (-> response :body :layergroupid)]
     (assert (= 200 (:status response)) "create map request failing")
@@ -160,8 +145,17 @@
                  {:method :get
                   :url    (str "http://windshaft:4000/layergroup/" layer-group "/0/0/0/0.grid.json")})]
       (assert (= 200 (:status tile)) "tile request failing")
-      (assert (empty? (ids-in-tile tile)) "data point found in map")
-      tile)))
+      (ids-in-tile tile))))
+
+(defn map-has [datapoint topic]
+  (try-for
+    "Maps not working!" 60
+    (assert (= (:identifier datapoint)
+               (first (create-map-and-get-tile datapoint topic)))
+            "data point not found in map")))
+
+(defn map-has-not [datapoint topic]
+  (assert (empty? (create-map-and-get-tile datapoint topic)) "data point found in map"))
 
 (deftest do-not-mix-data-from-different-topics
   (let [datapoint (random-data-point)
