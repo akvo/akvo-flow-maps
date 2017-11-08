@@ -85,7 +85,7 @@
   (with-open [producer (create-producer)]
     (send-sync!
       producer
-      {:topic (str topic ".datapoint")
+      {:topic (str topic "_datapoint")
        :key   (get data-point "surveyId")
        :value (avro/->java DataPointSchema data-point)})))
 
@@ -107,14 +107,15 @@
   (json-request {:method :post
                  :url    "http://flow-maps:3000/create-map"
                  :body   (json/generate-string
-                           {:version "1.5.0",
-                            :layers  [{:type    "mapnik",
-                                       :options {:sql              (str "select * from datapoint where id='" datapoint-id "'"),
-                                                 :geom_column      "geom",
-                                                 :srid             4326,
-                                                 :cartocss         "#s { marker-width: 10; marker-fill: #e00050; }",
-                                                 :cartocss_version "2.0.0",
-                                                 :interactivity    "id"}}]})}))
+                           {:topic topic
+                            :map   {:version "1.5.0",
+                                    :layers  [{:type    "mapnik",
+                                               :options {:sql              (str "select * from datapoint where id='" datapoint-id "'"),
+                                                         :geom_column      "geom",
+                                                         :srid             4326,
+                                                         :cartocss         "#s { marker-width: 10; marker-fill: #e00050; }",
+                                                         :cartocss_version "2.0.0",
+                                                         :interactivity    "id"}}]}})}))
 
 (defn random-id []
   (str (UUID/randomUUID)))
@@ -159,12 +160,12 @@
       tile)))
 
 (deftest do-not-mix-data-from-different-topics
-         (let [datapoint (random-data-point)
-               datapoint-topic-a (assoc datapoint :identifier (random-id))
-               datapoint-topic-b (assoc datapoint :identifier (random-id))
-               _ (info (push-data-point datapoint-topic-a "topic-a"))
-               _ (info (push-data-point datapoint-topic-b "topic-b"))]
-           (map-has datapoint-topic-a "topic-a")
-           (map-has datapoint-topic-b "topic-b")
-           (map-has-not datapoint-topic-b "topic-a")
-           (map-has-not datapoint-topic-a "topic-b")))
+  (let [datapoint (random-data-point)
+        datapoint-topic-a (assoc datapoint :identifier (random-id))
+        datapoint-topic-b (assoc datapoint :identifier (random-id))
+        _ (info (push-data-point datapoint-topic-a "topic_a"))
+        _ (info (push-data-point datapoint-topic-b "topic_b"))]
+    (map-has datapoint-topic-a "topic_a")
+    (map-has datapoint-topic-b "topic_b")
+    (map-has-not datapoint-topic-b "topic_a")
+    (map-has-not datapoint-topic-a "topic_b")))
