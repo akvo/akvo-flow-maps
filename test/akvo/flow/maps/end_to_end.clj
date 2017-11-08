@@ -82,11 +82,14 @@
       (KafkaAvroSerializer.)
       (.configure {"schema.registry.url" (System/getenv "KAFKA_SCHEMA_REGISTRY")} false))))
 
+(defn full-topic [topic]
+  (str topic ".datapoint"))
+
 (defn push-data-point [data-point topic]
   (with-open [producer (create-producer)]
     (send-sync!
       producer
-      {:topic (str topic "_datapoint")
+      {:topic (full-topic topic)
        :key   (get data-point "surveyId")
        :value (avro/->java DataPointSchema data-point)})))
 
@@ -111,7 +114,7 @@
   (json-request {:method :post
                  :url    "http://flow-maps:3000/create-map"
                  :body   (json/generate-string
-                           {:topic (str topic "_datapoint")
+                           {:topic (full-topic topic)
                             :map   {:version "1.5.0",
                                     :layers  [{:type    "mapnik",
                                                :options {:sql              (str "select * from datapoint where identifier='" datapoint-id "'"),
@@ -162,9 +165,9 @@
   (let [datapoint (random-data-point)
         datapoint-topic-a (assoc datapoint :identifier (random-id))
         datapoint-topic-b (assoc datapoint :identifier (random-id))
-        _ (info (push-data-point datapoint-topic-a "topic_a"))
-        _ (info (push-data-point datapoint-topic-b "topic_b"))]
-    (map-has datapoint-topic-a "topic_a")
-    (map-has datapoint-topic-b "topic_b")
-    (map-has-not datapoint-topic-b "topic_a")
-    (map-has-not datapoint-topic-a "topic_b")))
+        _ (info (push-data-point datapoint-topic-a "topic-a"))
+        _ (info (push-data-point datapoint-topic-b "topic-b"))]
+    (map-has datapoint-topic-a "topic-a")
+    (map-has datapoint-topic-b "topic-b")
+    (map-has-not datapoint-topic-b "topic-a")
+    (map-has-not datapoint-topic-a "topic-b")))

@@ -77,8 +77,14 @@
 
   (create-indices tenant-db))
 
+(defn db-name-for-tenant [tenant]
+  (->
+    tenant
+    clojure.string/lower-case
+    (clojure.string/replace  #"[^a-z0-9]" "_")))
+
 (defn create-tenant-db [master-db tenant]
-  (let [tenant-db-name tenant
+  (let [tenant-db-name (db-name-for-tenant tenant)
         {tenant-username :username tenant-password :password :as credentials} (assign-user-and-password master-db tenant tenant-db-name)]
 
     (create-role-and-db master-db tenant-db-name tenant-username tenant-password)
@@ -91,7 +97,7 @@
 
 (comment
 
-  (let [tenant (str "avlkmasdlkvm" (System/currentTimeMillis))]
+  (let [tenant (str "avlkmasdl.-kvm" (System/currentTimeMillis))]
     (create-tenant-db (System/getenv "DATABASE_URL") tenant)
     (create-tenant-db (System/getenv "DATABASE_URL") tenant))
 

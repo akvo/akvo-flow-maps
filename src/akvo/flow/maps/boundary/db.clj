@@ -29,11 +29,11 @@
 
                       (cond-> []
                               (and (seq valid-datapoints) (not (contains? dbs-credentials topic)))
-                              (conj [:create-db {:database topic}])
+                              (conj [:create-db {:tenant topic}])
 
                               (seq valid-datapoints)
-                              (conj [:upsert {:database topic
-                                              :rows     valid-datapoints}])
+                              (conj [:upsert {:tenant topic
+                                              :rows   valid-datapoints}])
 
                               true (conj [:stats {:topic     topic
                                                   :upsert    (count valid-datapoints)
@@ -63,7 +63,7 @@
   (when (nil? @tenant-creds)
     (reset! tenant-creds
             (into {}
-                  (map (juxt :database identity)
+                  (map (juxt :tenant identity)
                        (master-db/load-tenant-credentials db))))))
 
 (defn process-messages [db datapoints]
@@ -74,9 +74,9 @@
       (doseq [[action param] plan]
         (case action
           :stats (log/info param)
-          :upsert (insert-batch (merge (master-db/parse-postgres-jdbc db) (get @tenant-creds (:database param))) (:rows param))
-          :create-db (let [credentials (master-db/create-tenant-db db (:database param))]
-                       (swap! tenant-creds assoc (:database param) credentials)))))))
+          :upsert (insert-batch (merge (master-db/parse-postgres-jdbc db) (get @tenant-creds (:tenant param))) (:rows param))
+          :create-db (let [credentials (master-db/create-tenant-db db (:tenant param))]
+                       (swap! tenant-creds assoc (:tenant param) credentials)))))))
 
 (comment
   (process-messages (System/getenv "DATABASE_URL")
