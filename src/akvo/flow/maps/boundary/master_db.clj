@@ -47,10 +47,11 @@
      (catch PSQLException e# (when-not (re-matches ~regex (.getMessage e#))
                                (throw e#)))))
 
-(defn assign-user-and-password [master-db tenant]
+(defn assign-user-and-password [master-db tenant tenant-database-name]
   (insert-tenant master-db {:tenant tenant
                             :username (clojure.string/lower-case (random-str))
                             :password (random-str)
+                            :database tenant-database-name
                             :db-creation-state "creating"})
   (get-tenant-credentials master-db {:tenant tenant}))
 
@@ -77,19 +78,23 @@
   (create-indices tenant-db))
 
 (defn create-tenant-db [master-db tenant]
-  (let [{tenant-username :username tenant-password :password} (assign-user-and-password master-db tenant)
-        tenant-db-name tenant]
+  (let [tenant-db-name tenant
+        {tenant-username :username tenant-password :password :as credentials} (assign-user-and-password master-db tenant tenant-db-name)]
 
     (create-role-and-db master-db tenant-db-name tenant-username tenant-password)
     (create-tables (assoc (parse-postgres-jdbc master-db)
                      :dbname tenant-db-name
                      :user tenant-username
                      :password tenant-password))
-    (mark-as-done master-db tenant)))
-
+    (mark-as-done master-db tenant)
+    credentials))
 
 (comment
 
   (let [tenant (str "avlkmasdlkvm" (System/currentTimeMillis))]
     (create-tenant-db (System/getenv "DATABASE_URL") tenant)
-    (create-tenant-db (System/getenv "DATABASE_URL") tenant)))
+    (create-tenant-db (System/getenv "DATABASE_URL") tenant))
+
+  (ragtime.core/rollback (ragtime.jdbc/sql-database (dev/db)) (first (ragtime.jdbc/load-resources "akvo/flow/maps/db")))
+  (ragtime.core/migrate-all (ragtime.jdbc/sql-database (dev/db)) {} (ragtime.jdbc/load-resources "akvo/flow/maps/db")  )
+  )
