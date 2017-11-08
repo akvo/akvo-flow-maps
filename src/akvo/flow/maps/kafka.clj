@@ -15,7 +15,7 @@
                    (merge {:group.id                "the-consumer-test-101"
                            :client.id               "example-consumer_host_name_or_container_id"
                            :auto.offset.reset       :earliest
-                           :enable.auto.commit      true
+                           :enable.auto.commit      false
                            :auto.commit.interval.ms 10000}
                           consumer-properties)
                    (deserializers/long-deserializer)
@@ -33,11 +33,13 @@
                 batch (into [] (map (fn [r]
                                       (update r :value avro/->clj))) records)]
             (debug "Read " (count batch) " records from Kafka")
-            (db/insert-batch (:spec db) (map :value batch))))
-        (.close consumer)
+            (db/process-messages (System/getenv "DATABASE_URL") batch)
+            (cp/commit-offsets-sync! consumer)))
         (info "Kafka consumer has been stopped")
         (catch Throwable e
-          (error e "Kafka consumer died unexpectedly. Service will need to be restarted."))))
+          (error e "Kafka consumer died unexpectedly. Service will need to be restarted."))
+        (finally
+          (.close consumer))))
     {:stop     stop
      :consumer consumer}))
 
