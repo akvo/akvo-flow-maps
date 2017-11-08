@@ -15,10 +15,12 @@
  :akvo.flow.maps.handler/create-map
  {:db #ig/ref :duct.database/sql
   :http-proxy #ig/ref :akvo.flow.maps.boundary.http-proxy/http-client
+  :wait-for-migrations #ig/ref :duct.migrator/ragtime
   :windshaft-url "http://flow-maps-windshaft.flow-maps:4000/layergroup"}
 
  :akvo.flow.maps.kafka/consumer
  {:db #ig/ref :duct.database/sql
+  :wait-for-migrations #ig/ref :duct.migrator/ragtime
   :consumer-properties {:bootstrap.servers #duct/env "KAFKA_SERVERS"
                         :max.poll.records #duct/env ["MAX_POLL_RECORDS" Int :or 100]
                         :metadata.max.age.ms #duct/env ["METADATA_MAX_AGE_MS" Int :or 60000]}
