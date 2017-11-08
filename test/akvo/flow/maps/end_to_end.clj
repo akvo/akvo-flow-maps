@@ -101,7 +101,7 @@
                 (update :body (fn [body]
                                 (try
                                   (json/parse-string body true)
-                                  (catch JsonParseException e (throw (ex-info "expecting json response" {:body body})))))))]
+                                  (catch JsonParseException _ (throw (ex-info "expecting json response" {:body body})))))))]
     (debug "resp -> " res)
     (when (:error res)
       (throw (ex-info "Error in response" res)))
