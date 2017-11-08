@@ -12,7 +12,7 @@
 
 (hugsql/def-db-fns "akvo/flow/maps/boundary/masterdb.sql")
 
-(defmethod ig/init-key ::migÚration [_ config]
+(defmethod ig/init-key ::migration [_ config]
   (ragtime.jdbc/load-resources "akvo/flow/maps/db"))
 
 (def parse-postgres-jdbc
