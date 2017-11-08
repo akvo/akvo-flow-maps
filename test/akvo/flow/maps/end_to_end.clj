@@ -13,7 +13,8 @@
     [clojure.test :as test])
   (:import (io.confluent.kafka.serializers KafkaAvroSerializer)
            (java.util UUID)
-           (java.net Socket)))
+           (java.net Socket)
+           (com.fasterxml.jackson.core JsonParseException)))
 
 (defmacro try-for [msg how-long & body]
   `(let [start-time# (System/currentTimeMillis)]
@@ -97,7 +98,10 @@
   (let [res (-> (http/proxy-request http-client
                                     (update req :headers merge {"content-type" "application/json"}))
                 (update :status :code)
-                (update :body (fn [body] (json/parse-string body true))))]
+                (update :body (fn [body]
+                                (try
+                                  (json/parse-string body true)
+                                  (catch JsonParseException e (throw (ex-info "expecting json response" {:body body})))))))]
     (debug "resp -> " res)
     (when (:error res)
       (throw (ex-info "Error in response" res)))
