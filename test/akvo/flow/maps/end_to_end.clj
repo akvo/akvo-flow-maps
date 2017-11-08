@@ -107,15 +107,15 @@
   (json-request {:method :post
                  :url    "http://flow-maps:3000/create-map"
                  :body   (json/generate-string
-                           {:topic topic
+                           {:topic (str topic "_datapoint")
                             :map   {:version "1.5.0",
                                     :layers  [{:type    "mapnik",
-                                               :options {:sql              (str "select * from datapoint where id='" datapoint-id "'"),
+                                               :options {:sql              (str "select * from datapoint where identifier='" datapoint-id "'"),
                                                          :geom_column      "geom",
                                                          :srid             4326,
                                                          :cartocss         "#s { marker-width: 10; marker-fill: #e00050; }",
                                                          :cartocss_version "2.0.0",
-                                                         :interactivity    "id"}}]}})}))
+                                                         :interactivity    "identifier"}}]}})}))
 
 (defn random-id []
   (str (UUID/randomUUID)))
@@ -129,7 +129,7 @@
    :last-update-date-time (System/currentTimeMillis)})
 
 (defn ids-in-tile [tile]
-  (->> tile :body :data vals (map :id) set))
+  (->> tile :body :data vals (map :identifier) set))
 
 (defn map-has [datapoint topic]
   (let [response (create-map (:identifier datapoint) topic)
