@@ -4,7 +4,8 @@
             [akvo.flow.maps.boundary.http-proxy :as http-proxy]
             ring.middleware.params
             clojure.set
-            [cheshire.core :as json])
+            [cheshire.core :as json]
+            [akvo.flow.maps.boundary.master-db :as master-db])
   (:import (java.net URL)))
 
 
@@ -17,15 +18,21 @@
         (assoc "X-DB-HOST" (.getHost url)
                "X-DB-NAME" (.substring (.getPath url) 1)))))
 
-(defn windshaft-request [windshaft-url {:keys [request-method headers body-params]}]
+(defn windshaft-request [windshaft-url db {:keys [request-method headers body-params]}]
   (let [proxy-request {:url     windshaft-url
                        :method  request-method
                        :headers (-> headers
                                     (dissoc "host" "connection")
-                                    (merge (parse-jdbc (System/getenv "DATABASE_URL"))
-                                           {"X-DB-LAST-UPDATE" "1000"
-                                            "X-DB-PORT"        "5432"}))}]
-    (assoc proxy-request :body (json/generate-string body-params))))
+                                    (merge
+                                      (master-db/parse-postgres-jdbc db)
+                                      (master-db/get-tenant-credentials db {:tenant (:topic body-params)})
+                                      {"X-DB-LAST-UPDATE" "1000"
+                                       "X-DB-PORT"        "5432"})
+                                    (clojure.set/rename-keys {:database "X-DB-NAME"
+                                                              :username "X-DB-USER"
+                                                              :password "X-DB-PASSWORD"
+                                                              :host     "X-DB-HOST"}))}]
+    (assoc proxy-request :body (json/generate-string (:map body-params)))))
 
 (defn create-response-headers [headers]
   {"Content-Type"                 (:content-type headers)
@@ -46,7 +53,7 @@
     (GET "/" [] {:status 200 :body "hi"})
     (context "/create-map" []
       (POST "/" {:as req}
-        (->> (windshaft-request windshaft-url req)
+        (->> (windshaft-request windshaft-url (System/getenv "DATABASE_URL") req)
              (http-proxy/proxy-request http-proxy)
              build-response))
       (OPTIONS "/" {}
