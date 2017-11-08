@@ -70,7 +70,7 @@
   (when (seq datapoints)
     (load-tenant-credentials db)
     (let [plan (actions @tenant-creds datapoints)]
-      (log/info plan)
+      (log/debug plan)
       (doseq [[action param] plan]
         (case action
           :stats (log/info param)
