@@ -152,7 +152,8 @@
     "Maps not working!" 60
     (assert (= (:identifier datapoint)
                (first (create-map-and-get-tile datapoint topic)))
-            "data point not found in map")))
+            "data point not found in map")
+    :datapoint-found!))
 
 (defn map-has-not [datapoint topic]
   (assert (empty? (create-map-and-get-tile datapoint topic)) "data point found in map"))
