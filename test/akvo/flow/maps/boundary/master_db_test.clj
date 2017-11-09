@@ -10,13 +10,13 @@
     [topic-name expected-name]
     (= expected-name (master-db/db-name-for-tenant topic-name))
 
-    "foo" "foo"
-    "foo.bar" "foo_bar"
-    "foo bar" "foo_bar"
-    "foo$bar" "foo_bar"
-    "foo-bar" "foo_bar"
-    "foo_bar" "foo_bar"
-    "FOO" "foo"))
+    "foo" "afm_foo"
+    "foo.bar" "afm_foo_bar"
+    "foo bar" "afm_foo_bar"
+    "foo$bar" "afm_foo_bar"
+    "foo-bar" "afm_foo_bar"
+    "foo_bar" "afm_foo_bar"
+    "FOO" "afm_foo"))
 
 (defn cleanup [master-db db-url tenant]
   (ig/halt-key! ::master-db/master-db master-db)
