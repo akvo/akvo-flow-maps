@@ -59,7 +59,7 @@
 
 (defn process-messages [db datapoints]
   (when (seq datapoints)
-    (let [plan (actions (master-db/existing-dbs db) datapoints)]
+    (let [plan (actions (master-db/known-dbs db) datapoints)]
       (log/debug plan)
       (doseq [[action param] plan]
         (case action

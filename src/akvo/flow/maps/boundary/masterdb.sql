@@ -1,15 +1,15 @@
 -- :name insert-tenant :!
-insert into tenant (tenant, database, username, password, db_creation_state)
-       VALUES (:tenant, :database, :username, :password, :db-creation-state) on conflict(tenant) do nothing
+insert into tenant (tenant, db_uri, db_creation_state)
+       VALUES (:tenant, :db-uri, :db-creation-state) on conflict(tenant) do nothing
 
 -- :name get-tenant-credentials :? :1
-select tenant, username, password, database from tenant where tenant = :tenant
+select tenant, db_uri from tenant where tenant = :tenant
 
 -- :name update-tenant-state :!
 update tenant set db_creation_state = :db-creation-state where tenant = :tenant
 
 -- :name load-tenant-credentials :?
-select tenant, username, password, database from tenant
+select tenant, db_uri from tenant
 
 -- :name create-db :!
 CREATE DATABASE :i:dbname WITH OWNER = :i:owner
