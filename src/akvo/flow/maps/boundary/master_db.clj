@@ -17,19 +17,18 @@
 (defmethod ig/init-key ::migration [_ config]
   (ragtime.jdbc/load-resources "akvo/flow/maps/db"))
 
-(def parse-postgres-jdbc
-  (memoize (fn [url]
-             (assert (clojure.string/starts-with? url "jdbc:postgresql"))
-             (let [url (URL. (clojure.string/replace-first url "jdbc:postgresql" "http"))]
-               (-> (#'ring.middleware.params/parse-params (.getQuery url) "UTF-8")
-                   (assoc
-                     :host (.getHost url)
-                     :database (.substring (.getPath url) 1))
-                   clojure.walk/keywordize-keys
-                   (clojure.set/rename-keys {:user :username}))))))
+(defn parse-postgres-jdbc [url]
+  (assert (clojure.string/starts-with? url "jdbc:postgresql"))
+  (let [url (URL. (clojure.string/replace-first url "jdbc:postgresql" "http"))]
+    (-> (#'ring.middleware.params/parse-params (.getQuery url) "UTF-8")
+        (assoc
+          :host (.getHost url)
+          :database (.substring (.getPath url) 1))
+        clojure.walk/keywordize-keys
+        (clojure.set/rename-keys {:user :username}))))
 
-(defn random-str
-  ([] (random-str 36))
+(defn random-str-that-starts-with-a-letter
+  ([] (random-str-that-starts-with-a-letter 36))
   ([n]
    (let [chars-between #(map char (range (int %1) (inc (int %2))))
          letters (concat (chars-between \a \z)
@@ -51,8 +50,8 @@
 
 (defn assign-user-and-password [master-db tenant tenant-database-name]
   (insert-tenant master-db {:tenant            tenant
-                            :username          (clojure.string/lower-case (random-str))
-                            :password          (random-str)
+                            :username          (clojure.string/lower-case (random-str-that-starts-with-a-letter))
+                            :password          (random-str-that-starts-with-a-letter)
                             :database          tenant-database-name
                             :db-creation-state "creating"})
   (get-tenant-credentials master-db {:tenant tenant}))
