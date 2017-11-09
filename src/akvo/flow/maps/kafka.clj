@@ -9,11 +9,16 @@
     [clojure.tools.logging :refer [info debug error]])
   (:import (io.confluent.kafka.serializers KafkaAvroDeserializer)))
 
+(def client-id
+  (if (System/getenv "POD_NAME")
+    (str (System/getenv "POD_NAMESPACE") "_" (System/getenv "POD_NAME"))
+    (str "local-consumer-" (System/currentTimeMillis))))
+
 (defmethod ig/init-key ::consumer [_ {:keys [db schema-registry consumer-properties]}]
   (info "Initializing Kafka Consumer...")
   (let [consumer (consumer/make-consumer
-                   (merge {:group.id                "the-consumer-test-101"
-                           :client.id               "example-consumer_host_name_or_container_id"
+                   (merge {:group.id                "akvo-flow-maps-consumer"
+                           :client.id               client-id
                            :auto.offset.reset       :earliest
                            :enable.auto.commit      false
                            :auto.commit.interval.ms 10000}
