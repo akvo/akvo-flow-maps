@@ -33,7 +33,7 @@
                 batch (into [] (map (fn [r]
                                       (update r :value avro/->clj))) records)]
             (debug "Read " (count batch) " records from Kafka")
-            (db/process-messages (System/getenv "DATABASE_URL") batch)
+            (db/process-messages db batch)
             (cp/commit-offsets-sync! consumer)))
         (info "Kafka consumer has been stopped")
         (catch Throwable e

@@ -57,36 +57,12 @@
                    {:transaction? true
                     :multi?       true})))
 
-(def tenant-creds (atom nil))
-
-(defn load-tenant-credentials [db]
-  (when (nil? @tenant-creds)
-    (reset! tenant-creds
-            (into {}
-                  (map (juxt :tenant identity)
-                       (master-db/load-tenant-credentials db))))))
-
 (defn process-messages [db datapoints]
   (when (seq datapoints)
-    (load-tenant-credentials db)
-    (let [plan (actions @tenant-creds datapoints)]
+    (let [plan (actions (master-db/existing-dbs db) datapoints)]
       (log/debug plan)
       (doseq [[action param] plan]
         (case action
           :stats (log/info param)
-          :upsert (insert-batch (merge (master-db/parse-postgres-jdbc db) (get @tenant-creds (:tenant param))) (:rows param))
-          :create-db (let [credentials (master-db/create-tenant-db db (:tenant param))]
-                       (swap! tenant-creds assoc (:tenant param) credentials)))))))
-
-(comment
-  (process-messages (System/getenv "DATABASE_URL")
-                    [{:topic     "topicadatapoints",
-          :partition 0,
-          :offset    24,
-          :key       nil,
-          :value     {:identifier            "id0",
-                      :survey-id             20,
-                      :longitude             10,
-                      :latitude              -18.952741795895086,
-                      :created-date-time     1509724347835,
-                      :last-update-date-time 1509724347835}}]))
+          :upsert (insert-batch (master-db/pool-for-tenant db (:tenant param)) (:rows param))
+          :create-db (master-db/create-tenant-db db (:tenant param)))))))
