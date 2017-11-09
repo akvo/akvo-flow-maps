@@ -50,15 +50,15 @@
                                (throw e#)))))
 
 (defn assign-user-and-password [master-db tenant tenant-database-name]
-  (insert-tenant master-db {:tenant tenant
-                            :username (clojure.string/lower-case (random-str))
-                            :password (random-str)
-                            :database tenant-database-name
+  (insert-tenant master-db {:tenant            tenant
+                            :username          (clojure.string/lower-case (random-str))
+                            :password          (random-str)
+                            :database          tenant-database-name
                             :db-creation-state "creating"})
   (get-tenant-credentials master-db {:tenant tenant}))
 
 (defn mark-as-done [master-db tenant]
-  (update-tenant-state master-db {:tenant tenant
+  (update-tenant-state master-db {:tenant            tenant
                                   :db-creation-state "done"}))
 
 (defn create-role-and-db [master-db {:keys [database username password]}]
