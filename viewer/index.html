@@ -83,7 +83,9 @@
                     console.info("Success: " + textStatus + " / " + JSON.stringify(data));
                     setMap(data.layergroupid, data.metadata);
                   },
-                  data: mapConfig
+                  data: JSON.stringify({
+                                         topic:$('#topic').val(),
+                                         map: JSON.parse(mapConfig)})
                 });
 
             };
@@ -110,6 +112,8 @@ to default value
 Create Map URL: <input type="text" size="40" id="createUrl" value="http://localhost:3000/create-map"> (TEST env: http://flowmaps.akvotest.org/create-map)
 <br/>
 Map tiles url: <input type="text" size="40" id="tilesUrl" value="http://localhost:4000/layergroup/"> (TEST env: http://flowmaps.akvotest.org/layergroup/)
+<p>
+Topic name for tenant: <input type="text" size="40" id="topic" value="org.akvo.akvoflowsandbox.datapoint">
 <p>
 <input type="button" id="update_map" value="Go">
 <br />
