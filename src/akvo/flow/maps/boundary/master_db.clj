@@ -79,7 +79,7 @@
 
 (defn db-name-for-tenant [tenant]
   (->
-    tenant
+    (str "afm_" tenant)
     clojure.string/lower-case
     (clojure.string/replace #"[^a-z0-9]" "_")))
 
