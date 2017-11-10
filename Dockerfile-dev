@@ -2,5 +2,7 @@ FROM clojure:lein-2.7.1-alpine
 MAINTAINER Akvo Foundation <devops@akvo.org>
 
 WORKDIR /app
+COPY import-and-run.sh /import-and-run.sh
+RUN chmod 777 /import-and-run.sh
 
-CMD ["lein", "repl", ":headless"]
+CMD /import-and-run.sh

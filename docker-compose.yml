@@ -55,11 +55,12 @@ services:
       KAFKA_SCHEMA_REGISTRY: http://schema-registry:8081
       KAFKA_SERVERS: kafka:29092
       METADATA_MAX_AGE_MS: 500
-      DATABASE_URL: "jdbc:postgresql://postgres/master_db?user=dbuser&password=dbpassword"
+      DATABASE_URL: "jdbc:postgresql://postgres/master_db?user=dbuser&password=dbpassword&ssl=true"
     volumes:
       - .:/app
       - ~/.m2:/root/.m2
       - ~/.lein:/root/.lein
+      - ./postgres/provision:/pg-certs
     depends_on:
       - postgres
       - kafka
@@ -71,14 +72,16 @@ services:
 
   redis:
      image: redis:3.2.9
+
   windshaft:
     build: windshaft
     environment:
       - NODE_ENV=development
       - LUMEN_ENCRYPTION_KEY=supersecret
-      - PGSSLMODE=allow
+      - PGSSLROOTCERT=/pg-certs/server.crt
     volumes:
        - ./windshaft/config/dev:/config
+       - ./postgres/provision:/pg-certs
     links:
        - redis:flow-maps-redis-master.flow-maps
     ports:

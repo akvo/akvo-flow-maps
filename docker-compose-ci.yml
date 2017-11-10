@@ -52,24 +52,31 @@ services:
       KAFKA_SCHEMA_REGISTRY: http://schema-registry:8081
       KAFKA_SERVERS: kafka:29092
       METADATA_MAX_AGE_MS: 500
-      DATABASE_URL: "jdbc:postgresql://postgres/master_db?user=dbuser&password=dbpassword"
+      DATABASE_URL: "jdbc:postgresql://postgres/master_db?user=dbuser&password=dbpassword&ssl=true"
     depends_on:
       - postgres
       - kafka
     links:
       - windshaft:flow-maps-windshaft.flow-maps
+    volumes:
+      - ./windshaft/config/dev:/config
+      - ./postgres/provision:/pg-certs
     expose:
       - 3000
 
   redis:
      image: redis:3.2.9
+
   windshaft:
      image: "eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-windshaft:$TRAVIS_COMMIT"
      environment:
        - ENCRYPTION_KEY=sadfjlaskdfjlsadkfmewmewm
-       - PGSSLMODE=allow
+       - PGSSLROOTCERT=/pg-certs/server.crt
      links:
         - redis:flow-maps-redis-master.flow-maps
+     volumes:
+        - ./windshaft/config/dev:/config
+        - ./postgres/provision:/pg-certs
      expose:
        - 4000
 
@@ -78,11 +85,12 @@ services:
     environment:
       KAFKA_SCHEMA_REGISTRY: http://schema-registry:8081
       KAFKA_SERVERS: kafka:29092
-      DATABASE_URL: "jdbc:postgresql://postgres/master_db?user=dbuser&password=dbpassword"
+      DATABASE_URL: "jdbc:postgresql://postgres/master_db?user=dbuser&password=dbpassword&ssl=true"
     volumes:
       - .:/app
       - ~/.m2:/root/.m2
       - ~/.lein:/root/.lein
+      - ./postgres/provision:/pg-certs
     depends_on:
       - flow-maps
       - windshaft

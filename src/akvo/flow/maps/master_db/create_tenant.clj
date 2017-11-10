@@ -17,7 +17,7 @@
         (clojure.set/rename-keys {:user :username}))))
 
 (defn db-uri [{:keys [host port database username password]}]
-  (format "jdbc:postgresql://%s:%s/%s?ssl=false&user=%s&password=%s"
+  (format "jdbc:postgresql://%s:%s/%s?ssl=true&user=%s&password=%s"
           host port database username password))
 
 (defn random-str-that-starts-with-a-letter
