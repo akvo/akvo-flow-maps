@@ -1,8 +1,8 @@
-(ns akvo.flow.maps.boundary.create-tenant
+(ns akvo.flow.maps.master-db.create-tenant
   (:require [hugsql.core :as hugsql])
   (:import (java.net URI)))
 
-(hugsql/def-db-fns "akvo/flow/maps/boundary/masterdb.sql")
+(hugsql/def-db-fns "akvo/flow/maps/master_db/masterdb.sql")
 
 (defn parse-postgres-jdbc [url]
   (assert (clojure.string/starts-with? url "jdbc:postgresql"))

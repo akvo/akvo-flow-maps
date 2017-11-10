@@ -6,7 +6,7 @@
     [thdr.kfk.avro-bridge.core :as avro]
     [cheshire.core :as json]
     [franzy.serialization.serializers :as serializers]
-    [akvo.flow.maps.boundary.http-proxy :as http]
+    [akvo.flow.maps.map-creation.http-proxy :as http]
     [clojure.tools.logging :refer [info debug]]
     [clojure.test :refer :all]
     [clojure.java.jdbc :as jdbc]

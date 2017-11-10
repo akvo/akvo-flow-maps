@@ -1,10 +1,10 @@
-(ns akvo.flow.maps.boundary.db-test
+(ns akvo.flow.maps.kafka.dataprocessing-test
   (:require
-    [akvo.flow.maps.boundary.db :as db]
+    [akvo.flow.maps.kafka.datapoint-processing :as dp]
     [clojure.test :refer :all]))
 
 (deftest happy-path
-  (let [actions (db/actions {"topic-a.datapoint" :existing}
+  (let [actions (dp/actions {"topic-a.datapoint" :existing}
                             [{:topic     "topic-a.datapoint",
                               :partition 0,
                               :offset    24,
@@ -63,7 +63,7 @@
 
 
 (deftest do-nothing-if-all-rows-are-invalid
-  (let [actions (db/actions {} [{:topic     "topic-a.datapoint",
+  (let [actions (dp/actions {} [{:topic     "topic-a.datapoint",
                                  :partition 0,
                                  :offset    24,
                                  :key       nil,

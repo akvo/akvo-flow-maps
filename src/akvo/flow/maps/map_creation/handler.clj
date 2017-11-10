@@ -1,11 +1,11 @@
-(ns akvo.flow.maps.handler.create-map
+(ns akvo.flow.maps.map-creation.handler
   (:require [compojure.core :refer :all]
             [integrant.core :as ig]
-            [akvo.flow.maps.boundary.http-proxy :as http-proxy]
+            [akvo.flow.maps.map-creation.http-proxy :as http-proxy]
             ring.middleware.params
             clojure.set
             [cheshire.core :as json]
-            [akvo.flow.maps.boundary.master-db :as master-db]))
+            [akvo.flow.maps.master-db.core :as master-db]))
 
 (defn windshaft-request [windshaft-url tenant-info {:keys [request-method headers body-params]}]
   (if-not tenant-info
@@ -38,7 +38,7 @@
         (update :status :code)
         (update :headers create-response-headers))))
 
-(defmethod ig/init-key :akvo.flow.maps.handler/create-map [_ {:keys [http-proxy windshaft-url db]}]
+(defmethod ig/init-key ::endpoint [_ {:keys [http-proxy windshaft-url db]}]
   (context "/" []
     (GET "/" [] {:status 200 :body "hi"})
     (context "/create-map" []

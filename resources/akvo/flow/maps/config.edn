@@ -10,33 +10,34 @@
   :minimum-idle      2
   :maximum-pool-size 5}
 
- :duct.migrator/ragtime {:migrations ^:replace #ig/ref :akvo.flow.maps.boundary.master-db/migration}
+ :duct.migrator/ragtime {:migrations ^:replace #ig/ref :akvo.flow.maps.master-db.core/migration}
 
- :akvo.flow.maps.boundary.master-db/migration {}
+ :akvo.flow.maps.master-db.core/migration {}
 
- :akvo.flow.maps.boundary.master-db/master-db
+ :akvo.flow.maps.master-db.core/master-db
  {:wait-for-migrations #ig/ref :duct.migrator/ragtime
   :master-db-pool #ig/ref :duct.database/sql
   :master-db-url #duct/env "DATABASE_URL"}
 
  :duct.router/cascading
- [#ig/ref :akvo.flow.maps.handler/create-map]
+ [#ig/ref :akvo.flow.maps.map-creation.handler/endpoint]
 
- :akvo.flow.maps.handler/create-map
- {:db #ig/ref :akvo.flow.maps.boundary.master-db/master-db
-  :http-proxy #ig/ref :akvo.flow.maps.boundary.http-proxy/http-client
+ :akvo.flow.maps.map-creation.handler/endpoint
+ {:db #ig/ref :akvo.flow.maps.master-db.core/master-db
+  :http-proxy #ig/ref :akvo.flow.maps.map-creation.http-proxy/http-client
   :windshaft-url "http://flow-maps-windshaft.flow-maps:4000/layergroup"}
 
- :akvo.flow.maps.kafka/consumer
- {:db #ig/ref :akvo.flow.maps.boundary.master-db/master-db
-  :consumer-properties {:bootstrap.servers #duct/env "KAFKA_SERVERS"
-                        :max.poll.records #duct/env ["MAX_POLL_RECORDS" Int :or 100]
-                        :metadata.max.age.ms #duct/env ["METADATA_MAX_AGE_MS" Int :or 60000]}
-  :schema-registry #duct/env "KAFKA_SCHEMA_REGISTRY"}
-
- :akvo.flow.maps.boundary.http-proxy/http-client
+ :akvo.flow.maps.map-creation.http-proxy/http-client
  {:connection-timeout   10000
   :request-timeout      10000
   :read-timeout         10000
   :max-connections      10
-  :idle-in-pool-timeout 60000}}
+  :idle-in-pool-timeout 60000}
+
+ :akvo.flow.maps.kafka.core/consumer
+ {:db #ig/ref :akvo.flow.maps.master-db.core/master-db
+  :consumer-properties {:bootstrap.servers #duct/env "KAFKA_SERVERS"
+                        :max.poll.records #duct/env ["MAX_POLL_RECORDS" Int :or 100]
+                        :metadata.max.age.ms #duct/env ["METADATA_MAX_AGE_MS" Int :or 60000]}
+  :schema-registry #duct/env "KAFKA_SCHEMA_REGISTRY"}
+ }

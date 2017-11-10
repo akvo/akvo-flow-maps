@@ -1,7 +1,7 @@
-(ns akvo.flow.maps.boundary.master-db-test
+(ns akvo.flow.maps.master-db.master-db-test
   (:require
-    [akvo.flow.maps.boundary.master-db :as master-db]
-    [akvo.flow.maps.boundary.create-tenant :as create-tenant]
+    [akvo.flow.maps.master-db.core :as master-db]
+    [akvo.flow.maps.master-db.create-tenant :as create-tenant]
     [clojure.test :refer :all]
     [clojure.java.jdbc :as jdbc]
     [integrant.core :as ig]))

@@ -1,6 +1,6 @@
-(ns akvo.flow.maps.handler.create-map-test
+(ns akvo.flow.maps.map-creation.create-map-test
   (:require [clojure.test :refer :all]
-            [akvo.flow.maps.handler.create-map :as create-map]
+            [akvo.flow.maps.map-creation.handler :as create-map]
             [cheshire.core :as json])
   (:import (java.io IOException)))
 
@@ -8,7 +8,7 @@
   handle-windshaft-response
   (is (= 502 (:status (create-map/build-response {:error (IOException. "not working!")})))))
 
-(deftest proxy
+(deftest happy-path
   (is (= [:proxy {:url     "http://any"
                   :method  :get
                   :headers {"X-DB-HOST"        "199.99"

@@ -1,4 +1,4 @@
-(ns akvo.flow.maps.boundary.http-proxy
+(ns akvo.flow.maps.map-creation.http-proxy
   (:require [http.async.client :as http]
             [http.async.client.request :as http-req]
             [integrant.core :as ig])

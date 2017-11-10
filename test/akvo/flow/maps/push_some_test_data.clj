@@ -41,12 +41,12 @@
       (String. (.toByteArray bo) (Charset/forName "UTF-8"))))
 
   (with-open [rdr (clojure.java.io/reader "akvoflowsandbox.SurveyedLocale.edn")
-              http-client (akvo.flow.maps.boundary.http-proxy/create-client {:connection-timeout 10000
+              http-client (akvo.flow.maps.map-creation.http-proxy/create-client {:connection-timeout 10000
                                                                              :request-timeout    20000
                                                                              :max-connections    2})]
     (dorun (for [line (line-seq rdr)]
              (let [value (parse-line line)]
-               (let [r (akvo.flow.maps.boundary.http-proxy/proxy-request
+               (let [r (akvo.flow.maps.map-creation.http-proxy/proxy-request
                          http-client
                          {:method  :post
                           :headers {"Content-Type" "application/vnd.kafka.avro.v2+json"
