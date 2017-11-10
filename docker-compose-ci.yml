@@ -59,7 +59,6 @@ services:
     links:
       - windshaft:flow-maps-windshaft.flow-maps
     volumes:
-      - ./windshaft/config/dev:/config
       - ./postgres/provision:/pg-certs
     expose:
       - 3000
