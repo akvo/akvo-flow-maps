@@ -50,12 +50,13 @@
 (defn load-all-tenant-info [master-db]
   (map ldldl (load-tenant-credentials master-db)))
 
-(defn- assign-user-and-password [master-db tenant tenant-database-name db-host]
+(defn- assign-user-and-password [master-db tenant tenant-database-name parsed-master-info]
   (insert-tenant master-db {:tenant            tenant
-                            :db-uri            (db-uri {:host     db-host
-                                                        :database tenant-database-name
-                                                        :username (clojure.string/lower-case (random-str-that-starts-with-a-letter))
-                                                        :password (random-str-that-starts-with-a-letter)})
+                            :db-uri            (db-uri
+                                                 (merge parsed-master-info
+                                                        {:database tenant-database-name
+                                                         :username (clojure.string/lower-case (random-str-that-starts-with-a-letter))
+                                                         :password (random-str-that-starts-with-a-letter)}))
                             :db-creation-state "creating"})
   (load-tenant-info master-db tenant))
 
@@ -89,7 +90,7 @@
 
 (defn create-tenant-db [master-db-jdbc-url tenant]
   (let [parsed-master-info (parse-postgres-jdbc master-db-jdbc-url)
-        tenant-info (assign-user-and-password master-db-jdbc-url tenant (db-name-for-tenant tenant) (:host parsed-master-info))
+        tenant-info (assign-user-and-password master-db-jdbc-url tenant (db-name-for-tenant tenant) parsed-master-info)
         parsed-tenant-info (parse-postgres-jdbc (:db-uri tenant-info))]
 
     (create-role-and-db master-db-jdbc-url parsed-tenant-info)
