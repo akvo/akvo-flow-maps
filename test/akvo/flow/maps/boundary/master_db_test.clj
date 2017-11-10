@@ -43,8 +43,7 @@
       (master-db/create-tenant-db master-db tenant)
       (master-db/create-tenant-db master-db tenant)
       (is (some? (master-db/pool-for-tenant master-db tenant)))
-      (is (= tenant (:tenant (master-db/tenant-credentials master-db tenant))))
-      (is (= #{:tenant :db-uri} (set (keys (master-db/tenant-credentials master-db tenant)))))
+      (is (= #{:password :username :host :database} (set (keys (master-db/tenant-credentials master-db tenant)))))
       (finally
         (cleanup master-db db-url tenant)))))
 
