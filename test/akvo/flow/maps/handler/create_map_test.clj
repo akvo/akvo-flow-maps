@@ -15,7 +15,7 @@
                             "X-DB-NAME"        "a db"
                             "X-DB-USER"        "a username"
                             "X-DB-PASSWORD"    "the pwd"
-                            "X-DB-PORT"        "5432"
+                            "X-DB-PORT"        5432
                             "X-DB-LAST-UPDATE" "1000"
                             "A header"         "passed through"}
                   :body    (json/generate-string {:something "here"})}]
@@ -23,7 +23,8 @@
                                        {:database "a db"
                                         :username "a username"
                                         :password "the pwd"
-                                        :host     "199.99"}
+                                        :host     "199.99"
+                                        :port     5432}
                                        {:request-method :get
                                         :headers        {"A header" "passed through"
                                                          "host"     "removed!"}

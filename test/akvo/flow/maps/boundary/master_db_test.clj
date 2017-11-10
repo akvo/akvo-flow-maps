@@ -27,7 +27,16 @@
     {:password "a_valid_password"
      :username "a_valid_user"
      :database "some_db"
-     :host "postgres"} "jdbc:postgresql://postgres/some_db?ssl=false&user=a_valid_user&password=a_valid_password"))
+     :port     5432
+     :host     "postgres"} "jdbc:postgresql://postgres/some_db?ssl=false&user=a_valid_user&password=a_valid_password")
+
+    {:password "a_valid_password"
+     :username "a_valid_user"
+     :database "some_db"
+     :port     33333433
+     :host     "postgres"} "jdbc:postgresql://postgres:33333433/some_db?ssl=false&user=a_valid_user&password=a_valid_password"
+
+  )
 
 (defn cleanup [master-db db-url tenant]
   (ig/halt-key! ::master-db/master-db master-db)
@@ -43,7 +52,7 @@
       (master-db/create-tenant-db master-db tenant)
       (master-db/create-tenant-db master-db tenant)
       (is (some? (master-db/pool-for-tenant master-db tenant)))
-      (is (= #{:password :username :host :database} (set (keys (master-db/tenant-credentials master-db tenant)))))
+      (is (= #{:port :password :username :host :database} (set (keys (master-db/tenant-credentials master-db tenant)))))
       (finally
         (cleanup master-db db-url tenant)))))
 

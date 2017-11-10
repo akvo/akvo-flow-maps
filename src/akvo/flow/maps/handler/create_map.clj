@@ -16,11 +16,11 @@
                                               (dissoc "host" "connection")
                                               (merge
                                                 tenant-info
-                                                {"X-DB-LAST-UPDATE" "1000"
-                                                 "X-DB-PORT"        "5432"})
+                                                {"X-DB-LAST-UPDATE" "1000"})
                                               (clojure.set/rename-keys {:database "X-DB-NAME"
                                                                         :username "X-DB-USER"
                                                                         :password "X-DB-PASSWORD"
+                                                                        :port     "X-DB-PORT"
                                                                         :host     "X-DB-HOST"}))}]
               (assoc proxy-request :body (json/generate-string (:map body-params))))]))
 

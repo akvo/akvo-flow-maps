@@ -11,13 +11,14 @@
         (select-keys ["user" "password"])
         (assoc
           :host (.getHost url)
-          :database (.substring (.getPath url) 1))
+          :database (.substring (.getPath url) 1)
+          :port (if (= -1 (.getPort url)) 5432 (.getPort url)))
         clojure.walk/keywordize-keys
         (clojure.set/rename-keys {:user :username}))))
 
-(defn db-uri [{:keys [host database username password]}]
-  (format "jdbc:postgresql://%s/%s?ssl=false&user=%s&password=%s"
-          host database username password))
+(defn db-uri [{:keys [host port database username password]}]
+  (format "jdbc:postgresql://%s:%s/%s?ssl=false&user=%s&password=%s"
+          host port database username password))
 
 (defn random-str-that-starts-with-a-letter
   ([] (random-str-that-starts-with-a-letter 36))
