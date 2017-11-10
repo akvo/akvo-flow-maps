@@ -9,7 +9,11 @@
             [eftest.runner :as eftest]
             [integrant.core :as ig]
             [integrant.repl :refer [clear halt go init prep reset]]
-            [integrant.repl.state :refer [config system]]))
+            [integrant.repl.state :refer [config system]]
+            akvo.flow.maps.kafka.dataprocessing-test
+            akvo.flow.maps.map-creation.create-map-test
+            akvo.flow.maps.master-db.master-db-test
+            akvo.flow.maps.end-to-end))
 
 (duct/load-hierarchy)
 
