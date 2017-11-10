@@ -41,14 +41,14 @@
      (catch Exception e# (when-not (re-matches ~regex (or (.getMessage e#) ""))
                            (throw e#)))))
 
-(defn- ldldl [x]
+(defn- parse-row [x]
   (clojure.set/rename-keys x {:db_uri :db-uri}))
 
 (defn load-tenant-info [master-db tenant]
-  (ldldl (get-tenant-credentials master-db {:tenant tenant})))
+  (parse-row (get-tenant-credentials master-db {:tenant tenant})))
 
 (defn load-all-tenant-info [master-db]
-  (map ldldl (load-tenant-credentials master-db)))
+  (map parse-row (load-tenant-credentials master-db)))
 
 (defn- assign-user-and-password [master-db tenant tenant-database-name parsed-master-info]
   (insert-tenant master-db {:tenant            tenant

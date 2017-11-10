@@ -36,12 +36,12 @@
 (defn known-dbs [master-db]
   (-> master-db ::tenants deref keys set))
 
-(defn tenant-credentials [master-db tenant]
-  (let [look-up-creds #(-> master-db ::tenants deref (get tenant) ::info :db-uri create-tenant/parse-postgres-jdbc)]
-    (or (look-up-creds)
+(defn tenant-info [master-db tenant]
+  (let [look-up-info #(-> master-db ::tenants deref (get tenant) ::info :db-uri create-tenant/parse-postgres-jdbc)]
+    (or (look-up-info)
         (when-let [tenant-creds (create-tenant/load-tenant-info (::master-db-pool master-db) {:tenant tenant})]
           (register-tenant-pool (::tenants master-db) tenant-creds)
-          (look-up-creds)))))
+          (look-up-info)))))
 
 (defn create-tenant-db [master-db tenant]
   (let [tenant-info (create-tenant/create-tenant-db (::master-db-url master-db) tenant)]
