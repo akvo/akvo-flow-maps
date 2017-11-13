@@ -112,9 +112,9 @@
       (throw (ex-info "Error in response" res)))
     res))
 
-(defn create-map [datapoint-id topic]
+(defn create-map [url datapoint-id topic]
   (json-request {:method :post
-                 :url    "http://flow-maps:3000/create-map"
+                 :url    url
                  :body   (json/generate-string
                            {:topic (full-topic topic)
                             :map   {:version "1.5.0",
@@ -140,36 +140,38 @@
 (defn ids-in-tile [tile]
   (->> tile :body :data vals (map :identifier) set))
 
-(defn create-map-and-get-tile [datapoint topic]
-  (let [response (create-map (:identifier datapoint) topic)
+(defn create-map-and-get-tile [{:keys [create-map-url tiles-url]} datapoint topic]
+  (let [response (create-map create-map-url (:identifier datapoint) topic)
         layer-group (-> response :body :layergroupid)]
     (assert (= 200 (:status response)) "create map request failing")
     (assert (not (clojure.string/blank? layer-group)) "no layer group id?")
     (info "layer and datapoint" layer-group datapoint)
     (let [tile (json-request
                  {:method :get
-                  :url    (str "http://windshaft:4000/layergroup/" layer-group "/0/0/0/0.grid.json")})]
+                  :url    (str tiles-url "/layergroup/" layer-group "/0/0/0/0.grid.json")})]
       (assert (= 200 (:status tile)) "tile request failing")
       (ids-in-tile tile))))
 
-(defn map-has [datapoint topic]
+(defn map-has [config datapoint topic]
   (try-for
     "Maps not working!" 60
     (assert (= (:identifier datapoint)
-               (first (create-map-and-get-tile datapoint topic)))
+               (first (create-map-and-get-tile config datapoint topic)))
             "data point not found in map")
     :datapoint-found!))
 
-(defn map-has-not [datapoint topic]
-  (assert (empty? (create-map-and-get-tile datapoint topic)) "data point found in map"))
+(defn map-has-not [config datapoint topic]
+  (assert (empty? (create-map-and-get-tile config datapoint topic)) "data point found in map"))
 
 (deftest do-not-mix-data-from-different-topics
-  (let [datapoint (random-data-point)
+  (let [config {:create-map-url "http://flow-maps:3000/create-map"
+                :tiles-url      "http://windshaft:4000"}
+        datapoint (random-data-point)
         datapoint-topic-a (assoc datapoint :identifier (random-id))
         datapoint-topic-b (assoc datapoint :identifier (random-id))
         _ (info (push-data-point datapoint-topic-a "topic-a"))
         _ (info (push-data-point datapoint-topic-b "topic-b"))]
-    (map-has datapoint-topic-a "topic-a")
-    (map-has datapoint-topic-b "topic-b")
-    (map-has-not datapoint-topic-b "topic-a")
-    (map-has-not datapoint-topic-a "topic-b")))
+    (map-has config datapoint-topic-a "topic-a")
+    (map-has config datapoint-topic-b "topic-b")
+    (map-has-not config datapoint-topic-b "topic-a")
+    (map-has-not config datapoint-topic-a "topic-b")))
