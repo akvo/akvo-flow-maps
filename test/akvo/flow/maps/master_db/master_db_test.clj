@@ -41,7 +41,8 @@
 (defn cleanup [master-db db-url tenant]
   (ig/halt-key! ::master-db/master-db master-db)
   (jdbc/execute! db-url ["DELETE FROM tenant WHERE tenant=?" tenant])
-  (jdbc/execute! db-url [(str "DROP DATABASE " (create-tenant/db-name-for-tenant tenant))] {:transaction? false}))
+  (create-tenant/ignore-exception #"ERROR: database .* does not exist"
+    (jdbc/execute! db-url [(str "DROP DATABASE " (create-tenant/db-name-for-tenant tenant))] {:transaction? false})))
 
 (deftest ^:integration create-db
   (let [db-url (System/getenv "DATABASE_URL")
