@@ -1,5 +1,6 @@
 (ns akvo.flow.maps.master-db.create-tenant
-  (:require [hugsql.core :as hugsql])
+  (:require [hugsql.core :as hugsql]
+            ring.middleware.params)
   (:import (java.net URI)))
 
 (hugsql/def-db-fns "akvo/flow/maps/master_db/masterdb.sql")
