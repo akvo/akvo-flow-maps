@@ -31,7 +31,8 @@
                                         :body-params    {:map {:something "here"}}}))))
 
 (deftest unknown-tenant
-  (is (= [:return {:status 400}]
-         (create-map/windshaft-request "http://any"
-                                       nil
-                                       {:request-method :get}))))
+  (let [[action result] (create-map/windshaft-request "http://any"
+                                            nil
+                                            {:request-method :get})]
+    (is (= :return action))
+    (is (= 400 (:status result)))))

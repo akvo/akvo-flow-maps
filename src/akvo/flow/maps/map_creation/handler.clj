@@ -9,14 +9,13 @@
 
 (defn windshaft-request [windshaft-url tenant-info {:keys [request-method headers body-params]}]
   (if-not tenant-info
-    [:return {:status 400}]
+    [:return {:status 400
+              :body   "tenant does not exist"}]
     [:proxy (let [proxy-request {:url     windshaft-url
                                  :method  request-method
                                  :headers (-> headers
                                               (dissoc "host" "connection")
-                                              (merge
-                                                tenant-info
-                                                {"X-DB-LAST-UPDATE" "1000"})
+                                              (merge tenant-info {"X-DB-LAST-UPDATE" "1000"})
                                               (clojure.set/rename-keys {:database "X-DB-NAME"
                                                                         :username "X-DB-USER"
                                                                         :password "X-DB-PASSWORD"
@@ -32,7 +31,8 @@
 
 (defn build-response [windshaft-response]
   (if (:error windshaft-response)
-    {:status 502}
+    {:status 502
+     :body   "unexpected error"}
     (-> windshaft-response
         (select-keys [:status :body :headers])
         (update :status :code)
