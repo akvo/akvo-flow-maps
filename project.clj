@@ -27,8 +27,9 @@
   :resource-paths ["resources" "target/resources"]
   :prep-tasks ["javac" "compile" ["run" ":duct/compiler"]]
   :repositories {"confluent" "http://packages.confluent.io/maven/"}
-  :test-selectors {:default (complement :integration)
-                   :integration :integration}
+  :test-selectors {:default (complement :integration :kubernetes-test)
+                   :integration :integration
+                   :kubernetes-test :kubernetes-test}
   :profiles
   {:dev          [:project/dev :profiles/dev]
    :repl         {:prep-tasks   ^:replace ["javac" "compile"]

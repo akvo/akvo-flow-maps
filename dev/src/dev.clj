@@ -17,7 +17,9 @@
   (duct/read-config (io/resource "dev.edn")))
 
 (defn test []
-  (eftest/run-tests (eftest/find-tests "test")))
+  (eftest/run-tests (->> (eftest/find-tests "test")
+                         (remove (fn [t] (or (-> t meta :kubernetes-test)
+                                             (-> t meta :ns meta :kubernetes-test)))))))
 
 (clojure.tools.namespace.repl/set-refresh-dirs "dev/src" "src" "test")
 
