@@ -13,7 +13,7 @@
             akvo.flow.maps.kafka.dataprocessing-test
             akvo.flow.maps.map-creation.create-map-test
             akvo.flow.maps.master-db.master-db-test
-            akvo.flow.maps.end-to-end))
+            akvo.flow.maps.end-to-end-test))
 
 (duct/load-hierarchy)
 
