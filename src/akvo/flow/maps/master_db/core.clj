@@ -37,9 +37,9 @@
   (-> master-db ::tenants deref keys set))
 
 (defn tenant-info [master-db tenant]
-  (let [look-up-info #(-> master-db ::tenants deref (get tenant) ::info :db-uri create-tenant/parse-postgres-jdbc)]
+  (let [look-up-info #(some-> master-db ::tenants deref (get tenant) ::info :db-uri create-tenant/parse-postgres-jdbc)]
     (or (look-up-info)
-        (when-let [tenant-creds (create-tenant/load-tenant-info (::master-db-pool master-db) {:tenant tenant})]
+        (when-let [tenant-creds (create-tenant/load-tenant-info (::master-db-pool master-db) tenant)]
           (register-tenant-pool (::tenants master-db) tenant-creds)
           (look-up-info)))))
 
