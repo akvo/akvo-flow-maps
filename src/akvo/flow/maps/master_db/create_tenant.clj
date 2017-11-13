@@ -55,7 +55,7 @@
                             :db-uri            (db-uri
                                                  (merge parsed-master-info
                                                         {:database tenant-database-name
-                                                         :username (clojure.string/lower-case (random-str-that-starts-with-a-letter))
+                                                         :username (clojure.string/lower-case (str "afm_" (random-str-that-starts-with-a-letter)))
                                                          :password (random-str-that-starts-with-a-letter)}))
                             :db-creation-state "creating"})
   (load-tenant-info master-db tenant))
