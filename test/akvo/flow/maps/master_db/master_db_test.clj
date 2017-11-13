@@ -63,8 +63,6 @@
         tenant (str "test,xdr..,avlkmasdl.-kvm" (System/currentTimeMillis))
         workers (doall (repeatedly 5 #(future (master-db/create-tenant-db master-db tenant))))]
     (try
-      (try (mapv deref workers)
-           (catch Exception e (.printStackTrace e)))
       (is (every? #{:done} (map deref workers)))
       (is (empty? (jdbc/query (master-db/pool-for-tenant master-db tenant) ["SELECT * FROM datapoint"])))
       (finally
