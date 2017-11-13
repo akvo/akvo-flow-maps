@@ -99,12 +99,14 @@
 
 (defn json-request [req]
   (let [res (-> (http/proxy-request http-client
-                                    (update req :headers merge {"content-type" "application/json"}))
+                                    (update req :headers (fn [req-headers]
+                                                           (merge {"content-type" "application/json"} req-headers))))
                 (update :status :code)
                 (update :body (fn [body]
                                 (try
                                   (json/parse-string body true)
-                                  (catch JsonParseException _ (throw (ex-info "expecting json response" {:body body})))))))]
+                                  (catch JsonParseException _ (throw
+                                                                (RuntimeException. (str "expecting json response, was:'" body "'"))))))))]
     (debug "resp -> " res)
     (when (:error res)
       (throw (ex-info "Error in response" res)))
