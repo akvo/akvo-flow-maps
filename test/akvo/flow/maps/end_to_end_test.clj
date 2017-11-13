@@ -1,4 +1,4 @@
-(ns akvo.flow.maps.end-to-end
+(ns akvo.flow.maps.end-to-end-test
   {:integration true}
   (:require
     [franzy.clients.producer.client :as producer]
