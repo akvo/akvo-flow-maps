@@ -73,7 +73,7 @@
     (create-db master-db {:dbname database :owner username} {} {:transaction? false})))
 
 (defn- create-tables [tenant-db]
-  (ignore-exception #"(?s).*duplicate key value violates unique constraint.*"
+  (ignore-exception #"(?s)(.*duplicate key value violates unique constraint.*)|(ERROR: type .* already exists)"
     (create-db-tables tenant-db))
 
   (ignore-exception #"(?s).*column \"geom\" of relation \"datapoint\" already exists.*"
