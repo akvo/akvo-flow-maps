@@ -3,7 +3,7 @@
     [franzy.clients.producer.protocols :refer [send-sync! send-async!]]
     [thdr.kfk.avro-bridge.core :as avro]
     [cheshire.core :as json]
-    [akvo.flow.maps.end-to-end :as end-to-end])
+    [akvo.flow.maps.end-to-end-test :as end-to-end])
   (:import (java.io ByteArrayOutputStream)
            (org.apache.avro.io EncoderFactory)
            (org.apache.avro.generic GenericDatumWriter)
@@ -49,9 +49,9 @@
                (let [r (akvo.flow.maps.map-creation.http-proxy/proxy-request
                          http-client
                          {:method  :post
-                          :headers {"Content-Type" "application/vnd.kafka.avro.v2+json"
+                          :headers {"content-type" "application/vnd.kafka.avro.v2+json"
                                     "Accept"       "application/vnd.kafka.v2+json"}
-                          :url     "http://35.195.81.104:80/topics/org.akvo.akvoflowsandbox3.datapoint"
+                          :url     "http://35.195.81.104:80/topics/topic-a.datapoint"
                           :body    (json/generate-string {:value_schema end-to-end/DataPointSchema-as-json
                                                           :records      [{:value (json/parse-string (->avro-json value))}]})})]
                  (if (or (:error r) (not= (:code (:status r)) 200))
