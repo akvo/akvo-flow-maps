@@ -25,7 +25,9 @@ CREATE EXTENSION IF NOT EXISTS tablefunc WITH SCHEMA public;
 CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;
 
 -- :name create-role :!
-CREATE ROLE :i:username WITH PASSWORD ':i:password' LOGIN;
+CREATE ROLE :i:username WITH PASSWORD
+--~ (str "'" (:password params) "'")
+LOGIN;
 
 -- :name create-db-tables :!
 CREATE TABLE IF NOT EXISTS datapoint (
