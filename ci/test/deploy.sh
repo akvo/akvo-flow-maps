@@ -45,3 +45,7 @@ kubectl apply -f ci/redis-master-flow-maps.yaml
 kubectl apply -f windshaft.yaml
 kubectl apply -f flow-maps.yaml
 kubectl apply -f ci/test/ingress.yaml
+
+ci/test/wait-for-k8s-deployment-to-be-ready.sh
+
+docker-compose -p akvo-flow-ci -f docker-compose-ci.yml run --no-deps tests /import-and-run.sh kubernetes-test
