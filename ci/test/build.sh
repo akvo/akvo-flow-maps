@@ -20,8 +20,3 @@ docker tag eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-windshaft:$TRAVIS_COMMIT eu.
 
 docker-compose -p akvo-flow-ci -f docker-compose-ci.yml up -d --build
 docker-compose -p akvo-flow-ci -f docker-compose-ci.yml run --no-deps tests /import-and-run.sh integration-test
-
-rc=$?
-
-docker-compose -p akvo-flow-ci -f docker-compose-ci.yml down
-exit $rc
