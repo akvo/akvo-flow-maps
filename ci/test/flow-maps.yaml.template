@@ -18,6 +18,7 @@ spec:
     metadata:
       labels:
         run: flow-maps-consumer
+        flow-maps-version=$TRAVIS_COMMIT
     spec:
       containers:
       - name: flow-maps-consumer
