@@ -2,7 +2,7 @@
 
 set -eu
 
-PROJECT_NAME=akvo-lumen
+export PROJECT_NAME=akvo-lumen
 
 if [[ "${TRAVIS_BRANCH}" != "develop" ]] && [[ "${TRAVIS_BRANCH}" != "master" ]]; then
     exit 0
