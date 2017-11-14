@@ -74,7 +74,6 @@ services:
      links:
         - redis:flow-maps-redis-master.flow-maps
      volumes:
-        - ./windshaft/config/dev:/config
         - ./postgres/provision:/pg-certs
      expose:
        - 4000
