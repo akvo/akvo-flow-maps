@@ -16,38 +16,37 @@
 
 (defmethod ig/init-key ::consumer [_ {:keys [db schema-registry consumer-properties]}]
   (info "Initializing Kafka Consumer...")
-  (if-not (System/getenv "POD_NAME")
-    (let [consumer (consumer/make-consumer
-                     (merge {:group.id                "akvo-flow-maps-consumer"
-                             :client.id               client-id
-                             :auto.offset.reset       :earliest
-                             :enable.auto.commit      false
-                             :auto.commit.interval.ms 10000}
-                            consumer-properties)
-                     (deserializers/long-deserializer)
-                     (doto
-                       (KafkaAvroDeserializer.)
-                       (.configure {"schema.registry.url" schema-registry} false))
-                     {:poll-timeout-ms 1000})
-          stop (atom false)]
-      (cp/subscribe-to-partitions! consumer #".*datapoint.*")
-      (info "Subscribing to .*datapoint.*")
-      (future
-        (try
-          (while (not @stop)
-            (let [records (cp/poll! consumer)
-                  batch (into [] (map (fn [r]
-                                        (update r :value avro/->clj))) records)]
-              (debug "Read " (count batch) " records from Kafka")
-              (dp/process-messages db batch)
-              (cp/commit-offsets-sync! consumer)))
-          (info "Kafka consumer has been stopped")
-          (catch Throwable e
-            (error e "Kafka consumer died unexpectedly. Service will need to be restarted."))
-          (finally
-            (.close consumer))))
-      {:stop     stop
-       :consumer consumer})))
+  (let [consumer (consumer/make-consumer
+                   (merge {:group.id                "akvo-flow-maps-consumer"
+                           :client.id               client-id
+                           :auto.offset.reset       :earliest
+                           :enable.auto.commit      false
+                           :auto.commit.interval.ms 10000}
+                          consumer-properties)
+                   (deserializers/long-deserializer)
+                   (doto
+                     (KafkaAvroDeserializer.)
+                     (.configure {"schema.registry.url" schema-registry} false))
+                   {:poll-timeout-ms 1000})
+        stop (atom false)]
+    (cp/subscribe-to-partitions! consumer #".*datapoint.*")
+    (info "Subscribing to .*datapoint.*")
+    (future
+      (try
+        (while (not @stop)
+          (let [records (cp/poll! consumer)
+                batch (into [] (map (fn [r]
+                                      (update r :value avro/->clj))) records)]
+            (debug "Read " (count batch) " records from Kafka")
+            (dp/process-messages db batch)
+            (cp/commit-offsets-sync! consumer)))
+        (info "Kafka consumer has been stopped")
+        (catch Throwable e
+          (error e "Kafka consumer died unexpectedly. Service will need to be restarted."))
+        (finally
+          (.close consumer))))
+    {:stop     stop
+     :consumer consumer}))
 
 (defmethod ig/halt-key! ::consumer [_ {:keys [stop]}]
   (reset! stop true))
