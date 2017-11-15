@@ -1,0 +1,33 @@
+@startuml
+actor "Flow UI" as ui
+participant Flow
+participant "KeyCloak" as kc
+participant "Flow Maps Auth Proxy" as mp
+participant "Master DB" as db
+participant "Windshaft" as wind
+participant "Redis" as redis
+participant "Tenant DB" as tdb
+
+activate Flow
+ui -> Flow: /get-filters
+Flow -> Flow: authz
+Flow --> ui: surveys
+deactivate Flow
+
+ui -> Flow: create-map(survey)
+Flow -> kc: get-service-account: service-token
+Flow -> mp: create-map(tenant, survey, service-token)
+mp -> kc: validate(service-token)
+mp -> db: tenant-credentials(service-token)
+mp -> wind: create-map(service-token):tenant_credentials
+wind -> redis: store(map, tenant_credentials)
+wind --> mp: map-token
+mp --> Flow: map-token
+Flow --> ui: map-token
+
+ui -> wind: tiles(map-token)
+wind -> redis: get(map-token):map, tenant_credentials
+wind -> tdb: tiles(map, tenant_credentials)
+wind --> ui: tiles
+
+@enduml

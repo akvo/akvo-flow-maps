@@ -24,6 +24,7 @@
   :plugins [[duct/lein-duct "0.10.3"]]
   :uberjar-name "akvo-flow-maps.jar"
   :main ^:skip-aot akvo.flow.maps.main
+  :jvm-opts ["-Djavax.net.ssl.keyStoreType=pkcs12" "-Djavax.net.ssl.keyStore=/kafka-certs/client.p12" "-Djavax.net.ssl.keyStorePassword=asdfgh"]
   :resource-paths ["resources" "target/resources"]
   :prep-tasks ["javac" "compile" ["run" ":duct/compiler"]]
   :repositories {"confluent" "http://packages.confluent.io/maven/"}

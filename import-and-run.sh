@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 keytool -import -trustcacerts -keystore /usr/lib/jvm/default-jvm/jre/lib/security/cacerts -storepass changeit -noprompt -alias postgrescert -file /pg-certs/server.crt
+keytool -importkeystore -srckeystore /kafka-certs/ca.truststore.jks -destkeystore /usr/lib/jvm/default-jvm/jre/lib/security/cacerts -srcstorepass qwerty -deststorepass changeit -srcalias caroot -destalias schemacert -noprompt
 
 if [ -z "$1" ]; then
     lein repl :headless
