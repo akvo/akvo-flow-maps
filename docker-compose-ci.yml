@@ -36,10 +36,19 @@ services:
       - kafka
     expose:
       - 8081
+    volumes:
+      - ./kafka-certs:/kafka-certs
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper:32181
       SCHEMA_REGISTRY_LOG4J_ROOT_LOGLEVEL: WARN
+      SCHEMA_REGISTRY_LISTENERS: "https://0.0.0.0:8081"
+      SCHEMA_REGISTRY_SSL_CLIENT_AUTH: "true"
+      SCHEMA_REGISTRY_SSL_TRUSTSTORE_LOCATION: /kafka-certs/ca.truststore.jks
+      SCHEMA_REGISTRY_SSL_TRUSTSTORE_PASSWORD: qwerty
+      SCHEMA_REGISTRY_SSL_KEYSTORE_LOCATION: /kafka-certs/schema-registry-server.keystore.jks
+      SCHEMA_REGISTRY_SSL_KEYSTORE_PASSWORD: asdfgh
+      SCHEMA_REGISTRY_SSL_KEY_PASSWORD: zxcvbn
 
   postgres:
    build: postgres
@@ -60,6 +69,7 @@ services:
       - windshaft:flow-maps-windshaft.flow-maps
     volumes:
       - ./postgres/provision:/pg-certs
+      - ./kafka-certs:/kafka-certs
     expose:
       - 3000
 
@@ -89,6 +99,7 @@ services:
       - ~/.m2:/root/.m2
       - ~/.lein:/root/.lein
       - ./postgres/provision:/pg-certs
+      - ./kafka-certs:/kafka-certs
     depends_on:
       - flow-maps
       - windshaft
