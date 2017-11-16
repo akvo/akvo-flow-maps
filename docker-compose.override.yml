@@ -1,0 +1,27 @@
+version: "3"
+services:
+
+  flow-maps:
+    build:
+     context: .
+     dockerfile: Dockerfile-dev
+    volumes:
+      - .:/app
+      - ~/.m2:/root/.m2
+      - ~/.lein:/root/.lein
+    ports:
+      - "47480:47480"
+      - "3000:3000"
+
+  redis:
+     image: redis:3.2.9
+
+  windshaft:
+    build: windshaft
+    environment:
+      - NODE_ENV=development
+      - LUMEN_ENCRYPTION_KEY=supersecret
+    volumes:
+       - ./windshaft/config/dev:/config
+    ports:
+      - "4000:4000"

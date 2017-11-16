@@ -1,0 +1,28 @@
+version: "3"
+services:
+
+  flow-maps:
+    image: "eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-consumer:$TRAVIS_COMMIT"
+
+  windshaft:
+     image: "eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-windshaft:$TRAVIS_COMMIT"
+     environment:
+       - ENCRYPTION_KEY=sadfjlaskdfjlsadkfmewmewm
+
+  tests:
+    image: akvo-flow-dev:develop
+    environment:
+      KAFKA_SCHEMA_REGISTRY: https://schema-registry:8081
+      KAFKA_SERVERS: kafka:29092
+      DATABASE_URL: "jdbc:postgresql://postgres/master_db?user=dbuser&password=dbpassword&ssl=true"
+    volumes:
+      - .:/app
+      - ~/.m2:/root/.m2
+      - ~/.lein:/root/.lein
+      - ./postgres/provision:/pg-certs
+      - ./kafka-certs:/kafka-certs
+    depends_on:
+      - flow-maps
+      - windshaft
+      - postgres
+    command: "true"
