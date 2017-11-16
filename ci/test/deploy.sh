@@ -48,4 +48,4 @@ kubectl apply -f ci/test/ingress.yaml
 
 ci/test/wait-for-k8s-deployment-to-be-ready.sh
 
-docker-compose -p akvo-flow-ci -f docker-compose-ci.yml run --no-deps tests /import-and-run.sh kubernetes-test
+docker-compose -p akvo-flow-ci -f docker-compose.yml -f docker-compose.ci.yml run --no-deps tests /import-and-run.sh kubernetes-test
