@@ -1,7 +1,6 @@
 @startuml
 actor "Flow UI" as ui
 participant Flow
-participant "KeyCloak" as kc
 participant "Flow Maps Auth Proxy" as mp
 participant "Master DB" as db
 participant "Windshaft" as wind
@@ -14,16 +13,13 @@ Flow -> Flow: authz
 Flow --> ui: surveys
 deactivate Flow
 
-ui -> Flow: create-map(survey)
-Flow -> kc: get-service-account: service-token
-Flow -> mp: create-map(tenant, survey, service-token)
-mp -> kc: validate(service-token)
+ui -> mp: create-map(survey, session)
+mp -> Flow: authz(survey, session)
 mp -> db: tenant-credentials(service-token)
 mp -> wind: create-map(service-token):tenant_credentials
 wind -> redis: store(map, tenant_credentials)
 wind --> mp: map-token
-mp --> Flow: map-token
-Flow --> ui: map-token
+mp --> ui: map-token
 
 ui -> wind: tiles(map-token)
 wind -> redis: get(map-token):map, tenant_credentials
