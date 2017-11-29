@@ -40,7 +40,7 @@
 (defn check-user-role [request]
   (some-> request
           :identity
-          (is-user-in-role "uma_authorization")))
+          (is-user-in-role "akvo_flow_maps_client")))
 
 (defmethod ig/init-key ::middleware [_ {:keys [keycloak-deployment]}]
   #(-> %
