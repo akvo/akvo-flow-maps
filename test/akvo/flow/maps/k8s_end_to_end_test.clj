@@ -33,7 +33,7 @@
     (end-to-end/json-request {:method  :post
                               :headers {"content-type" "application/vnd.kafka.avro.v2+json"
                                         "Accept"       "application/vnd.kafka.v2+json"}
-                              :url     (str "http://35.195.81.104:80/topics/" (end-to-end/full-topic topic))
+                              :url     (str "http://kafka-rest-proxy.akvotest.org/topics/" (end-to-end/full-topic topic))
                               :body    (json/generate-string {:value_schema end-to-end/DataPointSchema-as-json
                                                               :records      [{:value (json/parse-string (->avro-json value))}]})})))
 
