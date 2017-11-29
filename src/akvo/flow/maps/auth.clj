@@ -8,14 +8,16 @@
             [buddy.auth :refer [authenticated?]]
             [buddy.auth.http :as http]
             [clojure.tools.logging :as log]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [cheshire.core :as json])
   (:import (org.keycloak.adapters KeycloakDeploymentBuilder KeycloakDeployment)
            (org.apache.http.impl.client HttpClients)
            (org.apache.http.client.config RequestConfig)
            (java.util.concurrent TimeUnit)
            (buddy.auth.protocols IAuthorization)
            (org.keycloak.adapters.rotation AdapterRSATokenVerifier)
-           (org.keycloak.representations AccessToken)))
+           (org.keycloak.representations AccessToken)
+           (java.io ByteArrayInputStream)))
 
 (defn parse-header
   [request token-name]
@@ -55,8 +57,13 @@
                                         {:status 403}
                                         {:status 401})))))
 
-(defmethod ig/init-key ::keycloak [_ {:keys [resource]}]
-  (let [keycloak-deployment (KeycloakDeploymentBuilder/build (io/input-stream (io/resource resource)))]
+(defmethod ig/init-key ::keycloak [_ {:keys [url]}]
+  (let [keycloak-config (json/generate-string {:realm           "akvo",
+                                               :bearer-only     true,
+                                               :auth-server-url url,
+                                               :ssl-required    "external",
+                                               :resource        "akvo-flow-maps"})
+        keycloak-deployment (KeycloakDeploymentBuilder/build (ByteArrayInputStream. (.getBytes keycloak-config "UTF-8")))]
     (.setClient keycloak-deployment
                 (-> (HttpClients/custom)
                     (.setMaxConnPerRoute 10)

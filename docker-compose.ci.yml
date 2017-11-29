@@ -15,6 +15,8 @@ services:
       KAFKA_SCHEMA_REGISTRY: https://schema-registry:8081
       KAFKA_SERVERS: kafka:29092
       DATABASE_URL: "jdbc:postgresql://postgres/master_db?user=dbuser&password=dbpassword&ssl=true"
+      KEYCLOAK_URL: http://keycloak:8080/auth
+      KEYCLOAK_TEST_PASSWORD: ${KEYCLOAK_TEST_PASSWORD}
     volumes:
       - .:/app
       - ~/.m2:/root/.m2

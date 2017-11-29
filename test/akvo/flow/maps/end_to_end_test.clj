@@ -113,22 +113,22 @@
       (throw (ex-info "Error in response" res)))
     res))
 
-(defn access-token []
+(defn access-token [{:keys [url user password]}]
   (-> (json-request {:method  :post
-                     :url     "http://keycloak:8080/auth/realms/akvo/protocol/openid-connect/token"
+                     :url     (str url "/realms/akvo/protocol/openid-connect/token")
                      :headers {"content-type" "application/x-www-form-urlencoded"}
                      :auth    {:type       :basic
-                               :user       "akvo-flow"
-                               :password   "3918fbb4-3bc3-445a-8445-76826603b227"
+                               :user       user
+                               :password   password
                                :preemptive true}
                      :body    {:grant_type "client_credentials"}})
       :body
       :access_token))
 
-(defn create-map-request [url datapoint-id topic]
+(defn create-map-request [url headers datapoint-id topic]
   {:method  :post
    :url     url
-   :headers {"Authorization" (str "Bearer " (access-token))}
+   :headers headers
    :body    (json/generate-string
               {:topic (full-topic topic)
                :map   {:version "1.5.0",
@@ -154,8 +154,9 @@
 (defn ids-in-tile [tile]
   (->> tile :body :data vals (map :identifier) set))
 
-(defn create-map-and-get-tile [{:keys [create-map-url tiles-url]} datapoint topic]
-  (let [response (json-request (create-map-request create-map-url (:identifier datapoint) topic))
+(defn create-map-and-get-tile [{:keys [create-map-url tiles-url keycloak]} datapoint topic]
+  (let [auth-headers {"Authorization" (str "Bearer " (access-token keycloak))}
+        response (json-request (create-map-request create-map-url auth-headers (:identifier datapoint) topic))
         layer-group (-> response :body :layergroupid)]
     (assert (= 200 (:status response)) "create map request failing")
     (assert (not (clojure.string/blank? layer-group)) "no layer group id?")
@@ -177,10 +178,14 @@
 (defn map-has-not [config datapoint topic]
   (assert (empty? (create-map-and-get-tile config datapoint topic)) "data point found in map"))
 
+(def config {:create-map-url "http://flow-maps:3000/create-map"
+             :tiles-url      "http://windshaft:4000"
+             :keycloak       {:url      (System/getenv "KEYCLOAK_URL")
+                              :user     "akvo-flow"
+                              :password "3918fbb4-3bc3-445a-8445-76826603b227"}})
+
 (deftest do-not-mix-data-from-different-topics
-  (let [config {:create-map-url "http://flow-maps:3000/create-map"
-                :tiles-url      "http://windshaft:4000"}
-        datapoint (random-data-point)
+  (let [datapoint (random-data-point)
         datapoint-topic-a (assoc datapoint :identifier (random-id))
         datapoint-topic-b (assoc datapoint :identifier (random-id))
         _ (info (push-data-point datapoint-topic-a "topic-a"))
@@ -191,11 +196,9 @@
     (map-has-not config datapoint-topic-a "topic-b")))
 
 (deftest map-creation-is-protected
-  (let [config {:create-map-url "http://flow-maps:3000/create-map"
-                :tiles-url      "http://windshaft:4000"}
-        _ (info (push-data-point (random-data-point) "topic-a"))
+  (let [_ (info (push-data-point (random-data-point) "topic-a"))
         request-without-auth (update
-                               (create-map-request (:create-map-url config) "any-datapoint-id" "topic-a")
+                               (create-map-request (:create-map-url config) {} "any-datapoint-id" "topic-a")
                                :headers
                                dissoc "Authorization")]
     (try-for

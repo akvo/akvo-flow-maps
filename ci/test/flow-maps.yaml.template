@@ -36,6 +36,12 @@ spec:
              secretKeyRef:
                name: flow-maps-consumer
                key: db-url
+         - name: KEYCLOAK_URL
+           valueFrom:
+             configMapKeyRef:
+               namespace: default
+               name: akvo
+               key: keycloak.url
          - name: KAFKA_SERVERS
            valueFrom:
              configMapKeyRef:

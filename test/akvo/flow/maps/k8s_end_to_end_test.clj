@@ -8,9 +8,9 @@
     [akvo.flow.maps.end-to-end-test :as end-to-end])
   (:import
     (java.nio.charset Charset)
-           (org.apache.avro.generic GenericDatumWriter)
-           (org.apache.avro.io EncoderFactory)
-           (java.io ByteArrayOutputStream)))
+    (org.apache.avro.generic GenericDatumWriter)
+    (org.apache.avro.io EncoderFactory)
+    (java.io ByteArrayOutputStream)))
 
 (defn check-servers-up [f]
   ;; wait for the version to be deployed
@@ -35,11 +35,15 @@
                                         "Accept"       "application/vnd.kafka.v2+json"}
                               :url     (str "http://kafka-rest-proxy.akvotest.org/topics/" (end-to-end/full-topic topic))
                               :body    (json/generate-string {:value_schema end-to-end/DataPointSchema-as-json
-                                                              :records      [{:value (json/parse-string (->avro-json value))}]})})))
+                                                              :records      [{:value (json/parse-string (->avro-json value))}]})})))ª
 
 (deftest shows-data-from-one-dp
   (let [config {:create-map-url "http://flowmaps.akvotest.org/create-map"
-                :tiles-url      "http://flowmaps.akvotest.org"}
+                :tiles-url      "http://flowmaps.akvotest.org"
+                :keycloak       {:url      "https://kc.akvotest.org/auth"
+                                 :user     "akvo-flow-maps-ci-client"
+                                 :password (or (System/getenv "KEYCLOAK_TEST_PASSWORD")
+                                               (throw (RuntimeException. "No password set for CI user")))}}
         datapoint (end-to-end/random-data-point)
         datapoint-topic-a (assoc datapoint :identifier (end-to-end/random-id))
         _ (info (push-data-point datapoint-topic-a "k8s-test"))]
