@@ -42,6 +42,8 @@
   :schema-registry #duct/env "KAFKA_SCHEMA_REGISTRY"}
 
  :duct.core/handler
- {:middleware ^:distinct [#ig/ref :akvo.flow.maps.auth/sec]}
+ {:middleware ^:distinct [#ig/ref :akvo.flow.maps.auth/middleware]}
 
- :akvo.flow.maps.auth/sec {}}
+ :akvo.flow.maps.auth/middleware {:keycloak-deployment #ig/ref :akvo.flow.maps.auth/keycloak}
+ :akvo.flow.maps.auth/keycloak {:resource "keycloak.json"}
+ }
