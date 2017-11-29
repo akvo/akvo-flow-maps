@@ -40,4 +40,8 @@
                         :max.poll.records #duct/env ["MAX_POLL_RECORDS" Int :or 100]
                         :metadata.max.age.ms #duct/env ["METADATA_MAX_AGE_MS" Int :or 60000]}
   :schema-registry #duct/env "KAFKA_SCHEMA_REGISTRY"}
- }
+
+ :duct.core/handler
+ {:middleware ^:distinct [#ig/ref :akvo.flow.maps.auth/sec]}
+
+ :akvo.flow.maps.auth/sec {}}

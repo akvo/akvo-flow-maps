@@ -47,6 +47,7 @@
 (defn check-servers-up [f]
   (wait-for-server "windshaft" 4000)
   (wait-for-server "flow-maps" 3000)
+  (wait-for-server "keycloak" 8080)
   (wait-for-server "redis" 6379)
   (wait-for-server "schema-registry" 8081)
   (wait-for-server "kafka" 29092)
@@ -112,19 +113,32 @@
       (throw (ex-info "Error in response" res)))
     res))
 
-(defn create-map [url datapoint-id topic]
-  (json-request {:method :post
-                 :url    url
-                 :body   (json/generate-string
-                           {:topic (full-topic topic)
-                            :map   {:version "1.5.0",
-                                    :layers  [{:type    "mapnik",
-                                               :options {:sql              (str "select * from datapoint where identifier='" datapoint-id "'"),
-                                                         :geom_column      "geom",
-                                                         :srid             4326,
-                                                         :cartocss         "#s { marker-width: 10; marker-fill: #e00050; }",
-                                                         :cartocss_version "2.0.0",
-                                                         :interactivity    "identifier"}}]}})}))
+(defn access-token []
+  (-> (json-request {:method  :post
+                     :url     "http://keycloak:8080/auth/realms/akvo/protocol/openid-connect/token"
+                     :headers {"content-type" "application/x-www-form-urlencoded"}
+                     :auth    {:type       :basic
+                               :user       "akvo-flow"
+                               :password   "3918fbb4-3bc3-445a-8445-76826603b227"
+                               :preemptive true}
+                     :body    {:grant_type "client_credentials"}})
+      :body
+      :access_token))
+
+(defn create-map-request [url datapoint-id topic]
+  {:method  :post
+   :url     url
+   :headers {"Authorization" (str "Bearer " (access-token))}
+   :body    (json/generate-string
+              {:topic (full-topic topic)
+               :map   {:version "1.5.0",
+                       :layers  [{:type    "mapnik",
+                                  :options {:sql              (str "select * from datapoint where identifier='" datapoint-id "'"),
+                                            :geom_column      "geom",
+                                            :srid             4326,
+                                            :cartocss         "#s { marker-width: 10; marker-fill: #e00050; }",
+                                            :cartocss_version "2.0.0",
+                                            :interactivity    "identifier"}}]}})})
 
 (defn random-id []
   (str (UUID/randomUUID)))
@@ -141,7 +155,7 @@
   (->> tile :body :data vals (map :identifier) set))
 
 (defn create-map-and-get-tile [{:keys [create-map-url tiles-url]} datapoint topic]
-  (let [response (create-map create-map-url (:identifier datapoint) topic)
+  (let [response (json-request (create-map-request create-map-url (:identifier datapoint) topic))
         layer-group (-> response :body :layergroupid)]
     (assert (= 200 (:status response)) "create map request failing")
     (assert (not (clojure.string/blank? layer-group)) "no layer group id?")
@@ -175,3 +189,18 @@
     (map-has config datapoint-topic-b "topic-b")
     (map-has-not config datapoint-topic-b "topic-a")
     (map-has-not config datapoint-topic-a "topic-b")))
+
+(deftest map-creation-is-protected
+  (let [config {:create-map-url "http://flow-maps:3000/create-map"
+                :tiles-url      "http://windshaft:4000"}
+        _ (info (push-data-point (random-data-point) "topic-a"))
+        request-without-auth (update
+                               (create-map-request (:create-map-url config) "any-datapoint-id" "topic-a")
+                               :headers
+                               dissoc "Authorization")]
+    (try-for
+      "Maps are not secure" 60
+      (assert (= 401
+                 (:status
+                   (json-request request-without-auth))))
+      :401-is-great!)))

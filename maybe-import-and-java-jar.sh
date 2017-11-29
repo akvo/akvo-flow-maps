@@ -12,4 +12,4 @@ if [ -f "/kafka-certs/client.p12" ]; then
     JAVA_CERTS_OPTS="-Djavax.net.ssl.keyStorePassword=asdfgh -Djavax.net.ssl.keyStore=/kafka-certs/client.p12 -Djavax.net.ssl.keyStoreType=pkcs12"
 fi
 
-java $JAVA_CERTS_OPTS -jar /app/akvo-flow-maps.jar
+java $JAVA_CERTS_OPTS -Dorg.jboss.logging.provider=slf4j -jar /app/akvo-flow-maps.jar

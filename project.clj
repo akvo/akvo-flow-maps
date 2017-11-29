@@ -20,11 +20,18 @@
                  [mastondonc/franzy "0.0.3"]
                  [org.postgresql/postgresql "42.1.4"]
                  [com.layerware/hugsql "0.4.8"]
-                 [io.thdr/kfk.avro-bridge "0.1.0-SNAPSHOT"]]
+                 [io.thdr/kfk.avro-bridge "0.1.0-SNAPSHOT"]
+                 [buddy "2.0.0"]
+                 [com.fasterxml.jackson.core/jackson-databind "2.9.1"]
+                 [org.keycloak/keycloak-adapter-core "3.3.0.Final"]
+                 [org.keycloak/keycloak-core "3.3.0.Final"]
+                 [org.jboss.logging/jboss-logging "3.3.0.Final"]
+                 [org.jboss.slf4j/slf4j-jboss-logging "1.1.0.Final"]
+                 [org.apache.httpcomponents/httpclient "4.5"]]
   :plugins [[duct/lein-duct "0.10.3"]]
   :uberjar-name "akvo-flow-maps.jar"
   :main ^:skip-aot akvo.flow.maps.main
-  :jvm-opts ["-Djavax.net.ssl.keyStoreType=pkcs12" "-Djavax.net.ssl.keyStore=/kafka-certs/client.p12" "-Djavax.net.ssl.keyStorePassword=asdfgh"]
+  :jvm-opts ["-Djavax.net.ssl.keyStoreType=pkcs12" "-Djavax.net.ssl.keyStore=/kafka-certs/client.p12" "-Djavax.net.ssl.keyStorePassword=asdfgh" "-Dorg.jboss.logging.provider=slf4j"]
   :resource-paths ["resources" "target/resources"]
   :prep-tasks ["javac" "compile" ["run" ":duct/compiler"]]
   :repositories {"confluent" "http://packages.confluent.io/maven/"}

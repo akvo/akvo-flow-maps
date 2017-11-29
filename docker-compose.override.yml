@@ -1,6 +1,10 @@
 version: "3"
 services:
 
+  keycloak:
+    ports:
+     - "8080:8080"
+
   flow-maps:
     build:
      context: .
