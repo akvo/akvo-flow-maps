@@ -46,7 +46,9 @@
   #(-> %
        (accessrules/wrap-access-rules {:policy :reject
                                        :rules  [{:uri     "/create-map"
-                                                 :handler check-user-role}]})
+                                                 :handler check-user-role}
+                                                {:uri     "/"
+                                                 :handler (constantly true)}]})
        (buddy-mw/wrap-authentication (token-parser keycloak-deployment))
        (buddy-mw/wrap-authorization (fn [request _]
                                       (if (authenticated? request)
