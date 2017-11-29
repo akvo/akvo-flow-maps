@@ -35,7 +35,7 @@
                                         "Accept"       "application/vnd.kafka.v2+json"}
                               :url     (str "http://kafka-rest-proxy.akvotest.org/topics/" (end-to-end/full-topic topic))
                               :body    (json/generate-string {:value_schema end-to-end/DataPointSchema-as-json
-                                                              :records      [{:value (json/parse-string (->avro-json value))}]})})))ª
+                                                              :records      [{:value (json/parse-string (->avro-json value))}]})})))
 
 (deftest shows-data-from-one-dp
   (let [config {:create-map-url "http://flowmaps.akvotest.org/create-map"
