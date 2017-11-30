@@ -39,7 +39,6 @@ spec:
          - name: KEYCLOAK_URL
            valueFrom:
              configMapKeyRef:
-               namespace: default
                name: akvo
                key: keycloak.url
          - name: KAFKA_SERVERS
