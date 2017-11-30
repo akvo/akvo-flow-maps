@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: flow-maps-nginx
+  namespace: default
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: flow-maps-nginx
+        flow-maps-version: $TRAVIS_COMMIT
+    spec:
+      containers:
+      - name: flow-maps-nginx
+        image: eu.gcr.io/akvo-lumen/akvo-flow-maps-nginx:$TRAVIS_COMMIT
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: "50m"
+          limits:
+            cpu: "1000m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flow-maps-nginx
+  namespace: default
+  labels:
+    run: flow-maps-nginx
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    run: flow-maps-nginx

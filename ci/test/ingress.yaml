@@ -7,12 +7,5 @@ spec:
   tls:
   - secretName: tls
   backend:
-    serviceName: flow-maps-windshaft
-    servicePort: 4000
-  rules:
-  - http:
-      paths:
-      - path: /create-map
-        backend:
-          serviceName: flow-maps-consumer
-          servicePort: 3000
+    serviceName: flow-maps-nginx
+    servicePort: 80

@@ -18,5 +18,8 @@ docker tag eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-consumer:$TRAVIS_COMMIT eu.g
 docker build --rm=false -t eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-windshaft:$TRAVIS_COMMIT ./windshaft
 docker tag eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-windshaft:$TRAVIS_COMMIT eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-windshaft:develop
 
+docker build --rm=false -t eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-nginx:$TRAVIS_COMMIT ./nginx
+docker tag eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-nginx:$TRAVIS_COMMIT eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-nginx:develop
+
 docker-compose -p akvo-flow-ci -f docker-compose.yml -f docker-compose.ci.yml up -d --build
 docker-compose -p akvo-flow-ci -f docker-compose.yml -f docker-compose.ci.yml run --no-deps tests /import-and-run.sh integration-test

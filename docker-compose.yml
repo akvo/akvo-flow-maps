@@ -93,3 +93,10 @@ services:
         - ./postgres/provision:/pg-certs
      expose:
        - 4000
+
+  nginx:
+    links:
+      - windshaft:flow-maps-windshaft
+      - flow-maps:flow-maps-consumer
+    expose:
+      - 80

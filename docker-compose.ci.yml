@@ -9,6 +9,9 @@ services:
      environment:
        - ENCRYPTION_KEY=sadfjlaskdfjlsadkfmewmewm
 
+  nginx:
+     image: "eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-nginx:$TRAVIS_COMMIT"
+
   tests:
     image: akvo-flow-dev:develop
     environment:

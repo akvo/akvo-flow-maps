@@ -29,3 +29,10 @@ services:
        - ./windshaft/config/dev:/config
     ports:
       - "4000:4000"
+
+  nginx:
+    build:
+     context: nginx
+     dockerfile: Dockerfile
+    ports:
+      - "7070:80"

@@ -178,8 +178,8 @@
 (defn map-has-not [config datapoint topic]
   (assert (empty? (create-map-and-get-tile config datapoint topic)) "data point found in map"))
 
-(def config {:create-map-url "http://flow-maps:3000/create-map"
-             :tiles-url      "http://windshaft:4000"
+(def config {:create-map-url "http://nginx/create-map"
+             :tiles-url      "http://nginx"
              :keycloak       {:url      (System/getenv "KEYCLOAK_URL")
                               :user     "akvo-flow"
                               :password "3918fbb4-3bc3-445a-8445-76826603b227"}})

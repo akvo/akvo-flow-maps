@@ -39,11 +39,13 @@ gcloud docker -- push eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-windshaft
 
 sed -e "s/\$TRAVIS_COMMIT/$TRAVIS_COMMIT/" ci/test/flow-maps.yaml.template > flow-maps.yaml
 sed -e "s/\$TRAVIS_COMMIT/$TRAVIS_COMMIT/" ci/test/windshaft.yaml.template > windshaft.yaml
+sed -e "s/\$TRAVIS_COMMIT/$TRAVIS_COMMIT/" ci/test/nginx.yaml.template > nginx.yaml
 
 kubectl apply -f ci/namespace.yaml
 kubectl apply -f ci/redis-master-flow-maps.yaml
 kubectl apply -f windshaft.yaml
 kubectl apply -f flow-maps.yaml
+kubectl apply -f nginx.yaml
 kubectl apply -f ci/test/ingress.yaml
 
 ci/test/wait-for-k8s-deployment-to-be-ready.sh
