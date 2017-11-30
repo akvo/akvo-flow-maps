@@ -34,6 +34,7 @@ fi
 # Pushing images
 gcloud docker -- push eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-consumer
 gcloud docker -- push eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-windshaft
+gcloud docker -- push eu.gcr.io/${PROJECT_NAME}/akvo-flow-maps-nginx
 
 # Deploying
 
