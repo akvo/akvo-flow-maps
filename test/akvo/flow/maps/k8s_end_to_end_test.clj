@@ -38,8 +38,8 @@
                                                               :records      [{:value (json/parse-string (->avro-json value))}]})})))
 
 (deftest shows-data-from-one-dp
-  (let [config {:create-map-url "http://flowmaps.akvotest.org/create-map"
-                :tiles-url      "http://flowmaps.akvotest.org"
+  (let [config {:create-map-url "https://flowmaps.akvotest.org/create-map"
+                :tiles-url      "https://flowmaps.akvotest.org"
                 :keycloak       {:url      "https://kc.akvotest.org/auth"
                                  :user     "akvo-flow-maps-ci-client"
                                  :password (or (System/getenv "KEYCLOAK_TEST_PASSWORD")
