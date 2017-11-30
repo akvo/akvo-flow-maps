@@ -25,7 +25,7 @@
  :akvo.flow.maps.map-creation.handler/endpoint
  {:db #ig/ref :akvo.flow.maps.master-db.core/master-db
   :http-proxy #ig/ref :akvo.flow.maps.map-creation.http-proxy/http-client
-  :windshaft-url "http://flow-maps-windshaft.flow-maps:4000/layergroup"}
+  :windshaft-url "http://flow-maps-windshaft:4000/layergroup"}
 
  :akvo.flow.maps.map-creation.http-proxy/http-client
  {:connection-timeout   10000

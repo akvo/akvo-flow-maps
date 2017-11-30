@@ -73,7 +73,7 @@ services:
       - postgres
       - kafka
     links:
-      - windshaft:flow-maps-windshaft.flow-maps
+      - windshaft:flow-maps-windshaft
     volumes:
       - ./postgres/provision:/pg-certs
       - ./kafka-certs:/kafka-certs
@@ -88,7 +88,7 @@ services:
        - ENCRYPTION_KEY=sadfjlaskdfjlsadkfmewmewm
        - PGSSLROOTCERT=/pg-certs/server.crt
      links:
-        - redis:flow-maps-redis-master.flow-maps
+        - redis:flow-maps-redis-master
      volumes:
         - ./postgres/provision:/pg-certs
      expose:

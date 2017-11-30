@@ -5,13 +5,13 @@ data:
 kind: ConfigMap
 metadata:
   name: flow-maps-consumer
-  namespace: flow-maps
+  namespace: default
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: flow-maps-consumer
-  namespace: flow-maps
+  namespace: default
 spec:
   replicas: 1
   template:
@@ -65,7 +65,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: flow-maps-consumer
-  namespace: flow-maps
+  namespace: default
   labels:
     run: flow-maps-consumer
 spec:

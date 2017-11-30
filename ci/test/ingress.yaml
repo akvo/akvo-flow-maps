@@ -2,7 +2,7 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: flow-maps
-  namespace: flow-maps
+  namespace: default
 spec:
   backend:
     serviceName: flow-maps-windshaft
