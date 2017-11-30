@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
 
 PROJECT_NAME=akvo-lumen
+TRAVIS_COMMIT=319e37b279c14d78633cf037acdb6a3eb5698922
 
 starttime=`date +%s`
 
 while [ $(( $(date +%s) - 120 )) -lt ${starttime} ]; do
 
-    consumer_status=`kubectl get pods --namespace flow-maps -l "flow-maps-version=$TRAVIS_COMMIT,run=flow-maps-consumer" -ao jsonpath='{range .items[*].status.containerStatuses[*]}{@.name}{" ready="}{@.ready}{"\n"}{end}'`
-    windshaft_status=`kubectl get pods --namespace flow-maps -l "flow-maps-version=$TRAVIS_COMMIT,run=flow-maps-windshaft" -ao jsonpath='{range .items[*].status.containerStatuses[*]}{@.name}{" ready="}{@.ready}{"\n"}{end}'`
+    consumer_status=`kubectl get pods -l "flow-maps-version=$TRAVIS_COMMIT,run=flow-maps-consumer" -ao jsonpath='{range .items[*].status.containerStatuses[*]}{@.name}{" ready="}{@.ready}{"\n"}{end}'`
+    windshaft_status=`kubectl get pods -l "flow-maps-version=$TRAVIS_COMMIT,run=flow-maps-windshaft" -ao jsonpath='{range .items[*].status.containerStatuses[*]}{@.name}{" ready="}{@.ready}{"\n"}{end}'`
 
 # We want to make sure that when we hit the ingress from the integration test, we are hitting the new containers,
 # hence we wait until the old pods are gone.
 # Another possibility could be to check that the service is pointing just to the new containers.
-    old_consumer_status=`kubectl get pods --namespace flow-maps -l "flow-maps-version!=$TRAVIS_COMMIT,run=flow-maps-consumer" -ao jsonpath='{range .items[*].status.containerStatuses[*]}{@.name}{" ready="}{@.ready}{"\n"}{end}'`
-    old_windshaft_status=`kubectl get pods --namespace flow-maps -l "flow-maps-version!=$TRAVIS_COMMIT,run=flow-maps-windshaft" -ao jsonpath='{range .items[*].status.containerStatuses[*]}{@.name}{" ready="}{@.ready}{"\n"}{end}'`
+    old_consumer_status=`kubectl get pods -l "flow-maps-version!=$TRAVIS_COMMIT,run=flow-maps-consumer" -ao jsonpath='{range .items[*].status.containerStatuses[*]}{@.name}{" ready="}{@.ready}{"\n"}{end}'`
+    old_windshaft_status=`kubectl get pods -l "flow-maps-version!=$TRAVIS_COMMIT,run=flow-maps-windshaft" -ao jsonpath='{range .items[*].status.containerStatuses[*]}{@.name}{" ready="}{@.ready}{"\n"}{end}'`
 
     if [[ ${consumer_status} =~ "ready=true" ]] && [[ ${windshaft_status} =~ "ready=true" ]] && ! [[ ${old_consumer_status} =~ "ready" ]] && ! [[ ${old_windshaft_status} =~ "ready" ]] ; then
         exit 0
@@ -25,7 +26,7 @@ done
 
 echo "Containers not ready after 2 minutes or old containers not stopped"
 
-kubectl get pods --namespace flow-maps -l "run=flow-maps-consumer" -ao jsonpath='{range .items[*].status.containerStatuses[*]}{@.name}{" ready="}{@.ready}{"\n"}{end}'
-kubectl get pods --namespace flow-maps -l "run=flow-maps-windshaft" -ao jsonpath='{range .items[*].status.containerStatuses[*]}{@.name}{" ready="}{@.ready}{"\n"}{end}'
+kubectl get pods -l "run=flow-maps-consumer" -ao jsonpath='{range .items[*].status.containerStatuses[*]}{@.name}{" ready="}{@.ready}{"\n"}{end}'
+kubectl get pods -l "run=flow-maps-windshaft" -ao jsonpath='{range .items[*].status.containerStatuses[*]}{@.name}{" ready="}{@.ready}{"\n"}{end}'
 
 exit 1
