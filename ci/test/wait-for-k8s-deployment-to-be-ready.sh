@@ -29,5 +29,6 @@ echo "Containers not ready after 2 minutes or old containers not stopped"
 
 kubectl get pods -l "run=flow-maps-consumer" -ao jsonpath='{range .items[*].status.containerStatuses[*]}{@.name}{" ready="}{@.ready}{"\n"}{end}'
 kubectl get pods -l "run=flow-maps-windshaft" -ao jsonpath='{range .items[*].status.containerStatuses[*]}{@.name}{" ready="}{@.ready}{"\n"}{end}'
+kubectl get pods -l "run=flow-maps-nginx" -ao jsonpath='{range .items[*].status.containerStatuses[*]}{@.name}{" ready="}{@.ready}{"\n"}{end}'
 
 exit 1
