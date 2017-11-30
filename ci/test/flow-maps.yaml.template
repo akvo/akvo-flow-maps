@@ -14,10 +14,14 @@ metadata:
   namespace: default
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      run: flow-maps-consumer
   template:
     metadata:
       labels:
         run: flow-maps-consumer
+        flow-maps-version: $TRAVIS_COMMIT
     spec:
       containers:
       - name: flow-maps-consumer
