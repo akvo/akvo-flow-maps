@@ -4,6 +4,8 @@ metadata:
   name: flow-maps
   namespace: default
 spec:
+  tls:
+  - secretName: tls
   backend:
     serviceName: flow-maps-windshaft
     servicePort: 4000
