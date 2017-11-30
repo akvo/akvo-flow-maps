@@ -9,7 +9,6 @@ spec:
     metadata:
       labels:
         run: flow-maps-nginx
-        flow-maps-version: $TRAVIS_COMMIT
     spec:
       containers:
       - name: flow-maps-nginx
