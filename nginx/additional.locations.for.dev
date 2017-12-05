@@ -1,0 +1,8 @@
+location /viewer/ {
+    root   /usr/share/nginx/html;
+}
+location /auth {
+    proxy_set_header        X-Real-IP $remote_addr;
+    proxy_set_header        X-Forwarded-Host $host;
+    proxy_pass http://keycloak:8080/auth;
+}
