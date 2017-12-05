@@ -22,7 +22,7 @@ script:
   - ./ci/test/build.sh && ./ci/test/deploy.sh
 
 after_failure:
-  - PROJECT_NAME=akvo-lumen docker-compose -p akvo-flow-ci -f docker-compose-ci.yml logs
+  - PROJECT_NAME=akvo-lumen docker-compose -p akvo-flow-ci -f docker-compose.ci.yml logs
 
 env:
   global:
