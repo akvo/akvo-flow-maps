@@ -34,5 +34,8 @@ services:
     build:
      context: nginx
      dockerfile: Dockerfile
+    volumes:
+      - ./nginx:/etc/nginx/conf.d/
+      - ./nginx/viewer:/usr/share/nginx/html/viewer
     ports:
       - "7070:80"

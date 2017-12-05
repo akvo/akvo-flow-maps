@@ -65,15 +65,38 @@
               map.setView(new L.LatLng(0, 0), 1, true);
             }
 
+
+            requestLayerGroupId = function(token) {
+                var mapConfig = $('#mapconfig').val().replace(/[\r\n]/gm,"");
+                $.ajax({
+                    url: $('#createUrl').val(),
+                    headers: {
+                        'Content-Type': 'application/json',
+                        "Authorization": "Bearer " + token
+                    },
+                    type: 'POST',
+                    error: function(xhr, textStatus, errorThrown) {
+                        console.error("Error: " + textStatus + " / " + JSON.stringify(errorThrown));
+                    },
+                    success: function(data, textStatus) {
+                        console.info("Success: " + textStatus + " / " + JSON.stringify(data));
+                        setMap(data.layergroupid, data.metadata);
+                    },
+                    data: JSON.stringify({
+                                topic:$('#topic').val(),
+                                map: JSON.parse(mapConfig)})
+                    });
+            };
+
             submitForm = function(ev){
                 ev.preventDefault();
 
-                var mapConfig = $('#mapconfig').val().replace(/[\r\n]/gm,"");
 
                 $.ajax({
-                  url: $('#createUrl').val(),
+                  url: $('#keyCloakUrl').val() + '/realms/akvo/protocol/openid-connect/token',
                   headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    "Authorization": "Basic " + btoa($('#clientId').val() + ":" + $('#clientSecret').val())
                   },
                   type: 'POST',
                   error: function(xhr, textStatus, errorThrown) {
@@ -81,14 +104,13 @@
                   },
                   success: function(data, textStatus) {
                     console.info("Success: " + textStatus + " / " + JSON.stringify(data));
-                    setMap(data.layergroupid, data.metadata);
+                    requestLayerGroupId(data.access_token);
                   },
-                  data: JSON.stringify({
-                                         topic:$('#topic').val(),
-                                         map: JSON.parse(mapConfig)})
+                  data: "grant_type=client_credentials"
                 });
 
             };
+
 
             resetForm = function() {
               $('#mapconfig').val(mapConfig_def);
@@ -109,9 +131,13 @@
 <input type="button" id="reset" value="reset">
 to default value
 </p>
-Create Map URL: <input type="text" size="40" id="createUrl" value="http://localhost:3000/create-map"> (TEST env: http://flowmaps.akvotest.org/create-map)
+Create Map URL: <input type="text" size="40" id="createUrl" value="http://localhost:7070/create-map"> (TEST env: https://flowmaps.akvotest.org/create-map)
 <br/>
-Map tiles url: <input type="text" size="40" id="tilesUrl" value="http://localhost:4000/layergroup/"> (TEST env: http://flowmaps.akvotest.org/layergroup/)
+Map tiles url: <input type="text" size="40" id="tilesUrl" value="http://localhost:7070/layergroup/"> (TEST env: https://flowmaps.akvotest.org/layergroup/)
+<br/>
+Keycloak url: <input type="text" size="40" id="keyCloakUrl" value="http://localhost:7070/auth"> (TEST env: https://kc.akvotest.org/auth)
+client: <input type="text" size="10" id="clientId" value="akvo-flow"> (TEST env: akvo-flow-maps-ci-client)
+secret: <input type="text" size="40" id="clientSecret" value="3918fbb4-3bc3-445a-8445-76826603b227"> (TEST env: login as superuser in Keycloak)
 <p>
 Topic name for tenant: <input type="text" size="40" id="topic" value="org.akvo.akvoflowsandbox.datapoint">
 <p>
