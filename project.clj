@@ -20,7 +20,7 @@
                  [mastondonc/franzy "0.0.3"]
                  [org.postgresql/postgresql "42.1.4"]
                  [com.layerware/hugsql "0.4.8"]
-                 [io.thdr/kfk.avro-bridge "0.1.0-SNAPSHOT"]
+                 [org.akvo/kfk.avro-bridge "1.2.dcc833627f2ff3e17bcfa3cd063903846e635363"]
                  [buddy "2.0.0"]
                  [com.fasterxml.jackson.core/jackson-databind "2.9.1"]
                  [org.keycloak/keycloak-adapter-core "3.3.0.Final"]
