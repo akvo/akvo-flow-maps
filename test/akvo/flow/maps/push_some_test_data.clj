@@ -26,7 +26,7 @@
                   :value (avro/->java end-to-end/DataPointSchema
                                       value)})))))
 
-  ;;; Push through Rest proxy
+  ;;; Push through TEST Rest proxy
   (with-open [rdr (clojure.java.io/reader "akvoflowsandbox.SurveyedLocale.edn")]
     (dorun (for [line (line-seq rdr)]
              (let [value (parse-line line)]

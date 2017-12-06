@@ -1,0 +1,37 @@
+@startuml
+
+folder "Flow Maps" {
+    folder "JVM Process" {
+        component "Flow Maps Auth Proxy" as mp
+        component "Maps Consumer" as mc
+    }
+    component "Windshaft" as wind
+    database "Redis" as redis
+    wind --> redis
+    folder "Postgres" {
+        database "Master DB" as db
+        database "Tenant DB" as tdb
+    }
+    component "Nginx" as nginx
+}
+
+component Flow
+queue DataPoints as "Kafka DataPoints"
+component FlowUI
+component Flow
+component "KeyCloak" as kc
+
+Flow --> DataPoints
+DataPoints --> mc
+
+FlowUI -[#00FF00]-> nginx: "tiles"
+Flow -[#0000FF]-> nginx: "create-map"
+nginx -[#0000FF]-> mp
+nginx -[#00FF00]-> wind
+wind --> tdb
+mc --> tdb
+mc --> db
+mp --> db
+mp --> kc
+Flow --> kc
+@enduml
