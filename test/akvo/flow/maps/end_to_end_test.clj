@@ -125,20 +125,19 @@
       :body
       :access_token))
 
-(defn create-map-request [url headers datapoint-id topic]
-  {:method  :post
-   :url     url
-   :headers headers
-   :body    (json/generate-string
-              {:topic (full-topic topic)
-               :map   {:version "1.5.0",
-                       :layers  [{:type    "mapnik",
-                                  :options {:sql              (str "select * from datapoint where identifier='" datapoint-id "'"),
-                                            :geom_column      "geom",
-                                            :srid             4326,
-                                            :cartocss         "#s { marker-width: 10; marker-fill: #e00050; }",
-                                            :cartocss_version "2.0.0",
-                                            :interactivity    "identifier"}}]}})})
+(defn create-map-request [url datapoint-id topic]
+  {:method :post
+   :url    url
+   :body   (json/generate-string
+             {:topic (full-topic topic)
+              :map   {:version "1.5.0",
+                      :layers  [{:type    "mapnik",
+                                 :options {:sql              (str "select * from datapoint where identifier='" datapoint-id "'"),
+                                           :geom_column      "geom",
+                                           :srid             4326,
+                                           :cartocss         "#s { marker-width: 10; marker-fill: #e00050; }",
+                                           :cartocss_version "2.0.0",
+                                           :interactivity    "identifier"}}]}})})
 
 (defn random-id []
   (str (UUID/randomUUID)))
@@ -155,8 +154,11 @@
   (->> tile :body :data vals (map :identifier) set))
 
 (defn create-map-and-get-tile [{:keys [create-map-url tiles-url keycloak]} datapoint topic]
-  (let [auth-headers {"Authorization" (str "Bearer " (access-token keycloak))}
-        response (json-request (create-map-request create-map-url auth-headers (:identifier datapoint) topic))
+  (let [request (create-map-request create-map-url (:identifier datapoint) topic)
+        request-with-auth (update request
+                                  :headers
+                                  merge {"Authorization" (str "Bearer " (access-token keycloak))})
+        response (json-request request-with-auth)
         layer-group (-> response :body :layergroupid)]
     (assert (= 200 (:status response)) "create map request failing")
     (assert (not (clojure.string/blank? layer-group)) "no layer group id?")
@@ -197,10 +199,7 @@
 
 (deftest map-creation-is-protected
   (let [_ (info (push-data-point (random-data-point) "topic-a"))
-        request-without-auth (update
-                               (create-map-request (:create-map-url config) {} "any-datapoint-id" "topic-a")
-                               :headers
-                               dissoc "Authorization")]
+        request-without-auth (create-map-request (:create-map-url config) "any-datapoint-id" "topic-a")]
     (try-for
       "Maps are not secure" 60
       (assert (= 401
