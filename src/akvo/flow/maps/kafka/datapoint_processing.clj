@@ -29,7 +29,7 @@
                                                 (filter valid?))]
 
                       (cond-> []
-                              (and (seq valid-datapoints) (not (contains? dbs-credentials topic)))
+                              (and (seq valid-datapoints) (not (master-db/is-db-ready? (get dbs-credentials topic))))
                               (conj [:create-db {:tenant topic}])
 
                               (seq valid-datapoints)

@@ -4,7 +4,7 @@
     [clojure.test :refer :all]))
 
 (deftest happy-path
-  (let [actions (dp/actions {"topic-a.datapoint" :existing}
+  (let [actions (dp/actions {"topic-a.datapoint" {:db-creation-state "done"}}
                             [{:topic     "topic-a.datapoint",
                               :partition 0,
                               :offset    24,
@@ -74,4 +74,27 @@
                                              :created-date-time     1509724347835,
                                              :last-update-date-time 1509724347835}}])]
     (is (= [[:stats {:topic "topic-a.datapoint" :discarded 1 :upsert 0}]]
+           actions))))
+
+(deftest create-db-if-it-is-not-created-yet
+  (let [actions (dp/actions {"topic-a.datapoint" {:db-creation-state "creating"}}
+                            [{:topic     "topic-a.datapoint",
+                              :partition 0,
+                              :offset    24,
+                              :key       nil,
+                              :value     {:identifier            "id0",
+                                          :survey-id             20,
+                                          :longitude             130,
+                                          :latitude              -18.952741795895086,
+                                          :created-date-time     1509724347835,
+                                          :last-update-date-time 1509724347835}}])]
+    (is (= [[:create-db {:tenant "topic-a.datapoint"}]
+            [:upsert {:tenant "topic-a.datapoint"
+                      :rows   [{:identifier            "id0",
+                                :survey-id             20,
+                                :longitude             130,
+                                :latitude              -18.952741795895086,
+                                :created-date-time     #inst "2017-11-03T15:52:27.835-00:00",
+                                :last-update-date-time #inst "2017-11-03T15:52:27.835-00:00"}]}]
+            [:stats {:topic "topic-a.datapoint" :discarded 0 :upsert 1}]]
            actions))))

@@ -10,6 +10,8 @@
     [akvo.flow.maps.master-db.create-tenant :as create-tenant])
   (:import (com.zaxxer.hikari HikariConfig)))
 
+(def is-db-ready? create-tenant/is-db-ready?)
+
 (defmethod ig/init-key ::migration [_ config]
   (ragtime.jdbc/load-resources "akvo/flow/maps/db"))
 

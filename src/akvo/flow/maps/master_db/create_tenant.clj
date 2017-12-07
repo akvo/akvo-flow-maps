@@ -43,13 +43,17 @@
                            (throw e#)))))
 
 (defn- parse-row [x]
-  (clojure.set/rename-keys x {:db_uri :db-uri}))
+  (clojure.set/rename-keys x {:db_uri :db-uri
+                              :db_creation_state :db-creation-state}))
 
 (defn load-tenant-info [master-db tenant]
   (parse-row (get-tenant-credentials master-db {:tenant tenant})))
 
 (defn load-all-tenant-info [master-db]
   (map parse-row (load-tenant-credentials master-db)))
+
+(defn is-db-ready? [tenant-info]
+  (= "done" (:db-creation-state tenant-info)))
 
 (defn- assign-user-and-password [master-db tenant tenant-database-name parsed-master-info]
   (insert-tenant master-db {:tenant            tenant
