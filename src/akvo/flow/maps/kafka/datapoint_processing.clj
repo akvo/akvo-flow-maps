@@ -3,7 +3,8 @@
     [akvo.flow.maps.master-db.core :as master-db]
     clojure.set
     [clojure.java.jdbc :as jdbc]
-    [clojure.tools.logging :as log]))
+    [clojure.tools.logging :as log]
+    [again.core :as again]))
 
 (defn ->db-timestamp [v]
   (when v
@@ -62,7 +63,9 @@
     (let [plan (actions (master-db/known-dbs db) datapoints)]
       (log/debug plan)
       (doseq [[action param] plan]
-        (case action
-          :stats (log/info param)
-          :upsert (insert-batch (master-db/pool-for-tenant db (:tenant param)) (:rows param))
-          :create-db (master-db/create-tenant-db db (:tenant param)))))))
+        (again/with-retries
+          [100 1000 10000]
+          (case action
+            :stats (log/info param)
+            :upsert (insert-batch (master-db/pool-for-tenant db (:tenant param)) (:rows param))
+            :create-db (master-db/create-tenant-db db (:tenant param))))))))

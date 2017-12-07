@@ -22,6 +22,7 @@
                  [com.layerware/hugsql "0.4.8"]
                  [org.akvo/kfk.avro-bridge "1.2.dcc833627f2ff3e17bcfa3cd063903846e635363"]
                  [buddy "2.0.0"]
+                 [listora/again "0.1.0"]
                  [com.fasterxml.jackson.core/jackson-databind "2.9.1"]
                  [org.keycloak/keycloak-adapter-core "3.3.0.Final"]
                  [org.keycloak/keycloak-core "3.3.0.Final"]
