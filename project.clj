@@ -9,6 +9,7 @@
                  [org.slf4j/jcl-over-slf4j "1.7.14"]
                  [org.slf4j/jul-to-slf4j "1.7.14"]
                  [org.slf4j/log4j-over-slf4j "1.7.14"]
+                 [com.google.cloud/google-cloud-logging-logback "0.30.0-alpha"]
 
                  [http.async.client "1.2.0"]
                  [duct/core "0.6.1"]
