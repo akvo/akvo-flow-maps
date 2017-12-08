@@ -10,8 +10,9 @@
                  [org.slf4j/jul-to-slf4j "1.7.14"]
                  [org.slf4j/log4j-over-slf4j "1.7.14"]
                  [com.google.cloud/google-cloud-logging-logback "0.30.0-alpha"]
-                 [org.mortbay.jetty.alpn/alpn-boot "8.1.11.v20170118"]
-                 [org.eclipse.jetty.npn/npn-api "8.1.2.v20120308"]
+                 [io.netty/netty-codec-http "4.1.13.Final"]
+                 [io.netty/netty-codec-http2 "4.1.13.Final"]
+                 [io.netty/netty-handler-proxy "4.1.13.Final"]
 
                  [http.async.client "1.2.0"]
                  [duct/core "0.6.1"]
