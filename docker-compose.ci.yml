@@ -21,6 +21,7 @@ services:
       KEYCLOAK_URL: http://keycloak:8080/auth
       KEYCLOAK_TEST_PASSWORD: ${KEYCLOAK_TEST_PASSWORD}
       APPENDER_TO_USE: STDOUT
+      GOOGLE_CLOUD_PROJECT: NONE
     volumes:
       - .:/app
       - ~/.m2:/root/.m2
