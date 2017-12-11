@@ -28,7 +28,11 @@
                  [org.keycloak/keycloak-core "3.3.0.Final"]
                  [org.jboss.logging/jboss-logging "3.3.0.Final"]
                  [org.jboss.slf4j/slf4j-jboss-logging "1.1.0.Final"]
-                 [org.apache.httpcomponents/httpclient "4.5"]]
+                 [org.apache.httpcomponents/httpclient "4.5"]
+
+                 [iapetos "0.1.7"]
+                 [io.prometheus/simpleclient_hotspot "0.0.26"]
+                 [io.prometheus/simpleclient_jetty_jdk8 "0.0.26"]]
   :plugins [[duct/lein-duct "0.10.3"]]
   :uberjar-name "akvo-flow-maps.jar"
   :main ^:skip-aot akvo.flow.maps.main
