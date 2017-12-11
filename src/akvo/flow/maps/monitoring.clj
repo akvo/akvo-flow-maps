@@ -7,7 +7,10 @@
 
 (defmethod ig/init-key ::middleware [_ config]
   (let [registry (-> (prometheus/collector-registry)
-                     (jvm/initialize)
+                     (prometheus/register
+                       (jvm/standard)
+                       (jvm/memory-pools)
+                       (jvm/threads))
                      #_(prometheus/register
                        (prometheus/histogram :app/duration-seconds)
                        (prometheus/gauge :app/active-users-total)
