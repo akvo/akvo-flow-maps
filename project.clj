@@ -27,7 +27,6 @@
                  [org.keycloak/keycloak-adapter-core "3.3.0.Final"]
                  [org.keycloak/keycloak-core "3.3.0.Final"]
                  [org.jboss.logging/jboss-logging "3.3.0.Final"]
-                 [org.jboss.slf4j/slf4j-jboss-logging "1.1.0.Final"]
                  [org.apache.httpcomponents/httpclient "4.5"]
 
                  [iapetos "0.1.7"]
