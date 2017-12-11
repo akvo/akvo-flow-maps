@@ -70,7 +70,7 @@ spec:
         command:
           - /monitor
           - --stackdriver-prefix=custom.googleapis.com
-          - --source=kube-state-metrics:http://localhost:3000/metrics
+          - --source=flow-maps-consumer:http://localhost:3000/metrics
           - --pod-id=$(POD_NAME)
           - --namespace-id=$(POD_NAMESPACE)
         env:
