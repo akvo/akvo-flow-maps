@@ -62,6 +62,26 @@ spec:
            valueFrom:
              fieldRef:
                fieldPath: metadata.namespace
+      - name: prometheus-to-sd
+        image: gcr.io/google-containers/prometheus-to-sd:v0.2.1
+        ports:
+          - name: profiler
+            containerPort: 6060
+        command:
+          - /monitor
+          - --stackdriver-prefix=custom.googleapis.com
+          - --source=kube-state-metrics:http://localhost:3000/metrics
+          - --pod-id=$(POD_NAME)
+          - --namespace-id=$(POD_NAMESPACE)
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
 ---
 apiVersion: v1
 kind: Service
