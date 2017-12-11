@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration scan="true" scanPeriod="30 seconds" debug="true">
+<configuration scan="true" scanPeriod="30 seconds">
 
    <logger name="akvo" level="INFO"/>
-
-   <appender name="CLOUD" class="com.google.cloud.logging.logback.LoggingAppender">
-      <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-         <level>INFO</level>
-      </filter>
-   </appender>
 
    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
       <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
@@ -19,7 +13,7 @@
    </appender>
 
    <root level="INFO">
-      <appender-ref ref="${APPENDER_TO_USE:-CLOUD}"/>
+      <appender-ref ref="STDOUT"/>
    </root>
 
 </configuration>

@@ -9,7 +9,6 @@
                  [org.slf4j/jcl-over-slf4j "1.7.14"]
                  [org.slf4j/jul-to-slf4j "1.7.14"]
                  [org.slf4j/log4j-over-slf4j "1.7.14"]
-                 [com.google.cloud/google-cloud-logging-logback "0.30.0-alpha"]
 
                  [http.async.client "1.2.0"]
                  [duct/core "0.6.1"]
@@ -30,9 +29,7 @@
                  [org.jboss.logging/jboss-logging "3.3.0.Final"]
                  [org.jboss.slf4j/slf4j-jboss-logging "1.1.0.Final"]
                  [org.apache.httpcomponents/httpclient "4.5"]]
-  :boot-dependencies [[org.mortbay.jetty.alpn/alpn-boot "8.1.11.v20170118"]]
-  :plugins [[duct/lein-duct "0.10.3"]
-            [info.sunng/lein-bootclasspath-deps "0.3.0"]]
+  :plugins [[duct/lein-duct "0.10.3"]]
   :uberjar-name "akvo-flow-maps.jar"
   :main ^:skip-aot akvo.flow.maps.main
   :jvm-opts ["-Djavax.net.ssl.keyStoreType=pkcs12" "-Djavax.net.ssl.keyStore=/kafka-certs/client.p12" "-Djavax.net.ssl.keyStorePassword=asdfgh" "-Dorg.jboss.logging.provider=slf4j"]
