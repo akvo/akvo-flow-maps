@@ -61,6 +61,16 @@
                    {:transaction? true
                     :multi?       true})))
 
+(defmacro metrics
+  [metrics-collector fn-name additional-labels & body]
+  `(let [labels# (merge {:fn ~fn-name, :result "success"} ~additional-labels)
+         failure-labels# (assoc labels# :result "failure")]
+     (prometheus/with-success-counter (~metrics-collector :fn/runs-total labels#)
+       (prometheus/with-failure-counter (~metrics-collector :fn/runs-total failure-labels#)
+         (ex/with-exceptions (~metrics-collector :fn/exceptions-total labels#)
+           (prometheus/with-duration (~metrics-collector :fn/duration-seconds labels#)
+             ~@body))))))
+
 (defn process-messages [db metrics-collector datapoints]
   (when (seq datapoints)
     (let [plan (actions (master-db/known-dbs db) datapoints)]
@@ -77,13 +87,9 @@
               (log/info param))
 
             :upsert
-            (let [labels {:fn "upsert-datapoints", :result "success" :topic (:tenant param) :batch-size (count (:rows param))}
-                  failure-labels (assoc labels :result "failure")]
-              (prometheus/with-success-counter (metrics-collector :fn/runs-total labels)
-                (prometheus/with-failure-counter (metrics-collector :fn/runs-total failure-labels)
-                  (ex/with-exceptions (metrics-collector :fn/exceptions-total labels)
-                    (prometheus/with-duration (metrics-collector :fn/duration-seconds labels)
-                      (insert-batch (master-db/pool-for-tenant db (:tenant param)) (:rows param)))))))
+            (metrics metrics-collector "upsert-datapoints"
+              {:topic (:tenant param) :batch-size (count (:rows param))}
+              (insert-batch (master-db/pool-for-tenant db (:tenant param)) (:rows param)))
 
             :create-db
             (master-db/create-tenant-db db (:tenant param))))))))
