@@ -71,6 +71,15 @@
            (prometheus/with-duration (~metrics-collector :fn/duration-seconds labels#)
              ~@body))))))
 
+(defn upsert-metrics-labels [upsert]
+  {:topic      (:tenant upsert)
+   :batch-size (condp >= (count (:rows upsert))
+                 1 "1"
+                 10 "2-10"
+                 50 "11-50"
+                 100 "51-100"
+                 "101+")})
+
 (defn process-messages [db metrics-collector datapoints]
   (when (seq datapoints)
     (let [plan (actions (master-db/known-dbs db) datapoints)]
@@ -88,7 +97,7 @@
 
             :upsert
             (metrics metrics-collector "upsert-datapoints"
-              {:topic (:tenant param) :batch-size (count (:rows param))}
+              (upsert-metrics-labels param)
               (insert-batch (master-db/pool-for-tenant db (:tenant param)) (:rows param)))
 
             :create-db

@@ -41,9 +41,11 @@
             [:upsert {:tenant "topic-b.datapoint"
                       :rows   [(row "id1")]}]
             [:stats {:topic "topic-b.datapoint" :discarded 0 :upsert 1 :total 1}]]
-           actions))))
+           actions))
 
-
+    (is (= (dp/upsert-metrics-labels (second (first actions)))
+           {:topic      "topic-a.datapoint"
+            :batch-size "2-10"}))))
 
 (deftest do-nothing-if-all-rows-are-invalid
   (let [actions (dp/actions {} [(kafka-message "topic-a.datapoint" (assoc (datapoint "any id") :longitude nil))])]
@@ -58,3 +60,14 @@
                       :rows   [(row "id0")]}]
             [:stats {:topic "topic-a.datapoint" :discarded 0 :upsert 1 :total 1}]]
            actions))))
+
+(deftest batch-sizes
+  (are [number-of-records expected-label] (= (dp/upsert-metrics-labels {:tenant "_" :rows (range number-of-records)})
+                                             {:topic "_" :batch-size expected-label})
+    1 "1"
+    2 "2-10"
+    5 "2-10"
+    10 "2-10"
+    11 "11-50"
+    51 "51-100"
+    101 "101+"))
