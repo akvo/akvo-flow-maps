@@ -36,6 +36,7 @@
 
  :akvo.flow.maps.kafka.core/consumer
  {:db #ig/ref :akvo.flow.maps.master-db.core/master-db
+  :metrics-collector #ig/ref :akvo.flow.maps.monitoring/collector
   :consumer-properties {:bootstrap.servers #duct/env "KAFKA_SERVERS"
                         :max.poll.records #duct/env ["MAX_POLL_RECORDS" Int :or 100]
                         :metadata.max.age.ms #duct/env ["METADATA_MAX_AGE_MS" Int :or 60000]}
@@ -48,5 +49,6 @@
  :akvo.flow.maps.auth/middleware {:keycloak-deployment #ig/ref :akvo.flow.maps.auth/keycloak}
  :akvo.flow.maps.auth/keycloak {:url #duct/env "KEYCLOAK_URL"}
 
- :akvo.flow.maps.monitoring/middleware {}
+ :akvo.flow.maps.monitoring/collector {}
+ :akvo.flow.maps.monitoring/middleware {:collector #ig/ref :akvo.flow.maps.monitoring/collector}
  }

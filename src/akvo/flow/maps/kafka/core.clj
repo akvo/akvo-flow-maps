@@ -14,7 +14,7 @@
     (str (System/getenv "POD_NAMESPACE") "_" (System/getenv "POD_NAME"))
     (str "local-consumer-" (System/currentTimeMillis))))
 
-(defmethod ig/init-key ::consumer [_ {:keys [db schema-registry consumer-properties]}]
+(defmethod ig/init-key ::consumer [_ {:keys [db schema-registry consumer-properties metrics-collector]}]
   (info "Initializing Kafka Consumer...")
   (let [consumer (consumer/make-consumer
                    (merge {:group.id                "akvo-flow-maps-consumer"
@@ -38,7 +38,7 @@
                 batch (into [] (map (fn [r]
                                       (update r :value avro/->clj))) records)]
             (debug "Read " (count batch) " records from Kafka")
-            (dp/process-messages db batch)
+            (dp/process-messages db metrics-collector batch)
             (cp/commit-offsets-sync! consumer)))
         (info "Kafka consumer has been stopped")
         (catch Throwable e

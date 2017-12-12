@@ -35,19 +35,19 @@
     (is (= [[:upsert {:tenant "topic-a.datapoint"
                       :rows   [(row "id0")
                                (row "id2")]}]
-            [:stats {:topic "topic-a.datapoint" :discarded 0 :upsert 2}]
+            [:stats {:topic "topic-a.datapoint" :discarded 0 :upsert 2 :total 2}]
 
             [:create-db {:tenant "topic-b.datapoint"}]
             [:upsert {:tenant "topic-b.datapoint"
                       :rows   [(row "id1")]}]
-            [:stats {:topic "topic-b.datapoint" :discarded 0 :upsert 1}]]
+            [:stats {:topic "topic-b.datapoint" :discarded 0 :upsert 1 :total 1}]]
            actions))))
 
 
 
 (deftest do-nothing-if-all-rows-are-invalid
   (let [actions (dp/actions {} [(kafka-message "topic-a.datapoint" (assoc (datapoint "any id") :longitude nil))])]
-    (is (= [[:stats {:topic "topic-a.datapoint" :discarded 1 :upsert 0}]]
+    (is (= [[:stats {:topic "topic-a.datapoint" :discarded 1 :upsert 0 :total 1}]]
            actions))))
 
 (deftest create-db-if-it-is-not-created-yet
@@ -56,5 +56,5 @@
     (is (= [[:create-db {:tenant "topic-a.datapoint"}]
             [:upsert {:tenant "topic-a.datapoint"
                       :rows   [(row "id0")]}]
-            [:stats {:topic "topic-a.datapoint" :discarded 0 :upsert 1}]]
+            [:stats {:topic "topic-a.datapoint" :discarded 0 :upsert 1 :total 1}]]
            actions))))

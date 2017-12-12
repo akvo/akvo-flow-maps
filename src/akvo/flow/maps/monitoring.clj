@@ -3,7 +3,8 @@
             [iapetos.collector.jvm :as jvm]
             [iapetos.collector.ring :as ring]
             [integrant.core :as ig]
-            [iapetos.collector :as collector])
+            [iapetos.collector :as collector]
+            [iapetos.registry :as registry])
   (:import (java.lang.management ManagementFactory GarbageCollectorMXBean)
            (io.prometheus.client Collector CounterMetricFamily)))
 
@@ -22,20 +23,19 @@
               (.addMetric gc-metrics-count [(str (.getName gc) "_count")] (double (.getCollectionCount gc))))
             [gc-metrics-sum gc-metrics-count]))))))
 
-(defmethod ig/init-key ::middleware [_ config]
-  (let [registry (-> (prometheus/collector-registry)
-                     (prometheus/register
-                       (jvm/standard)
-                       (jvm/memory-pools)
-                       (jvm/threads)
-                       (gc-stats-collector))
-                     #_(prometheus/register
-                         (prometheus/histogram :app/duration-seconds)
-                         (prometheus/gauge :app/active-users-total)
-                         (prometheus/counter :app/runs-total))
-                     (ring/initialize))]
-    #(-> %
-         (ring/wrap-metrics registry))))
+(defmethod ig/init-key ::collector [_ config]
+  (-> (prometheus/collector-registry)
+      (prometheus/register
+        (jvm/standard)
+        (jvm/memory-pools)
+        (jvm/threads)
+        (gc-stats-collector)
+        (prometheus/counter :datapoint/process {:labels [:topic :name]}))
+      (ring/initialize)))
+
+(defmethod ig/init-key ::middleware [_ {:keys [collector]}]
+  #(ring/wrap-metrics % collector))
 
 (comment
-  (slurp "http://localhost:3000/metrics"))
+  (slurp "http://localhost:3000/metrics")
+  )

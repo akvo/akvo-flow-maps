@@ -4,7 +4,8 @@
     clojure.set
     [clojure.java.jdbc :as jdbc]
     [clojure.tools.logging :as log]
-    [again.core :as again]))
+    [again.core :as again]
+    [iapetos.core :as prometheus]))
 
 (defn ->db-timestamp [v]
   (when v
@@ -38,7 +39,8 @@
 
                               true (conj [:stats {:topic     topic
                                                   :upsert    (count valid-datapoints)
-                                                  :discarded (- (count messages) (count valid-datapoints))}]))))]
+                                                  :discarded (- (count messages) (count valid-datapoints))
+                                                  :total     (count messages)}]))))]
     (->> kafka-messages
          (group-by :topic)
          (mapcat ->actions))))
@@ -58,7 +60,7 @@
                    {:transaction? true
                     :multi?       true})))
 
-(defn process-messages [db datapoints]
+(defn process-messages [db metrics-collector datapoints]
   (when (seq datapoints)
     (let [plan (actions (master-db/known-dbs db) datapoints)]
       (log/debug plan)
@@ -66,6 +68,10 @@
         (again/with-retries
           [100 1000 10000]
           (case action
-            :stats (log/info param)
+            :stats (do
+                     (prometheus/inc metrics-collector :datapoint/process {:topic (:topic param) :name "total"} (:total param))
+                     (prometheus/inc metrics-collector :datapoint/process {:topic (:topic param) :name "discarded"} (:discarded param))
+                     (prometheus/inc metrics-collector :datapoint/process {:topic (:topic param) :name "upsert"} (:upsert param))
+                     (log/info param))
             :upsert (insert-batch (master-db/pool-for-tenant db (:tenant param)) (:rows param))
             :create-db (master-db/create-tenant-db db (:tenant param))))))))
