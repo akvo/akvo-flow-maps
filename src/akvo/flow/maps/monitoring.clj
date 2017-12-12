@@ -35,6 +35,7 @@
         (prometheus/histogram
           :fn/duration-seconds
           {:description "the time elapsed during execution of the observed function."
+           :buckets     [0.01, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10]
            :labels      [:fn :topic :batch-size]})
         (prometheus/counter
           :fn/runs-total
