@@ -4,7 +4,8 @@
             [iapetos.collector.ring :as ring]
             [integrant.core :as ig]
             [iapetos.collector :as collector]
-            [iapetos.registry :as registry])
+            [iapetos.registry :as registry]
+            [iapetos.collector.exceptions :as ex])
   (:import (java.lang.management ManagementFactory GarbageCollectorMXBean)
            (io.prometheus.client Collector CounterMetricFamily)))
 
@@ -30,7 +31,19 @@
         (jvm/memory-pools)
         (jvm/threads)
         (gc-stats-collector)
-        (prometheus/counter :datapoint/process {:labels [:topic :name]}))
+        (prometheus/counter :datapoint/process {:labels [:topic :name]})
+        (prometheus/histogram
+          :fn/duration-seconds
+          {:description "the time elapsed during execution of the observed function."
+           :labels      [:fn :topic :batch-size]})
+        (prometheus/counter
+          :fn/runs-total
+          {:description "the total number of finished runs of the observed function."
+           :labels      [:fn :result :topic :batch-size]})
+        (ex/exception-counter
+          :fn/exceptions-total
+          {:description "the total number and type of exceptions for the observed function."
+           :labels      [:fn :topic :batch-size]}))
       (ring/initialize)))
 
 (defmethod ig/init-key ::middleware [_ {:keys [collector]}]

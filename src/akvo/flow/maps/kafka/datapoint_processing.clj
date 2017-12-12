@@ -5,7 +5,8 @@
     [clojure.java.jdbc :as jdbc]
     [clojure.tools.logging :as log]
     [again.core :as again]
-    [iapetos.core :as prometheus]))
+    [iapetos.core :as prometheus]
+    [iapetos.collector.exceptions :as ex]))
 
 (defn ->db-timestamp [v]
   (when v
@@ -68,10 +69,21 @@
         (again/with-retries
           [100 1000 10000]
           (case action
-            :stats (do
-                     (prometheus/inc metrics-collector :datapoint/process {:topic (:topic param) :name "total"} (:total param))
-                     (prometheus/inc metrics-collector :datapoint/process {:topic (:topic param) :name "discarded"} (:discarded param))
-                     (prometheus/inc metrics-collector :datapoint/process {:topic (:topic param) :name "upsert"} (:upsert param))
-                     (log/info param))
-            :upsert (insert-batch (master-db/pool-for-tenant db (:tenant param)) (:rows param))
-            :create-db (master-db/create-tenant-db db (:tenant param))))))))
+            :stats
+            (do
+              (prometheus/inc metrics-collector :datapoint/process {:topic (:topic param) :name "total"} (:total param))
+              (prometheus/inc metrics-collector :datapoint/process {:topic (:topic param) :name "discarded"} (:discarded param))
+              (prometheus/inc metrics-collector :datapoint/process {:topic (:topic param) :name "upsert"} (:upsert param))
+              (log/info param))
+
+            :upsert
+            (let [labels {:fn "upsert-datapoints", :result "success" :topic (:tenant param) :batch-size (count (:rows param))}
+                  failure-labels (assoc labels :result "failure")]
+              (prometheus/with-success-counter (metrics-collector :fn/runs-total labels)
+                (prometheus/with-failure-counter (metrics-collector :fn/runs-total failure-labels)
+                  (ex/with-exceptions (metrics-collector :fn/exceptions-total labels)
+                    (prometheus/with-duration (metrics-collector :fn/duration-seconds labels)
+                      (insert-batch (master-db/pool-for-tenant db (:tenant param)) (:rows param)))))))
+
+            :create-db
+            (master-db/create-tenant-db db (:tenant param))))))))
