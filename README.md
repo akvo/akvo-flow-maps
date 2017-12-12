@@ -41,7 +41,7 @@ docker-compose up
 
 A Clojure REPL will be listening on port 47480.
 
-Nginx will be listening on localhost:7070, with an [example UI](http://localhost:7070).
+Nginx will be listening on localhost:7070, with an [example UI](http://localhost:7070/viewer/).
 
 To add an example dataset, look at the akvo.flow.maps.push-some-test-data namespace in the test directory.
 
