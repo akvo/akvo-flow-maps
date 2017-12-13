@@ -10,7 +10,8 @@
     [clojure.tools.logging :refer [info debug]]
     [clojure.test :refer :all]
     [clojure.java.jdbc :as jdbc]
-    [clojure.test :as test])
+    [clojure.test :as test]
+    clojure.string)
   (:import (io.confluent.kafka.serializers KafkaAvroSerializer)
            (java.util UUID)
            (java.net Socket)
@@ -206,8 +207,7 @@
     (map-has config datapoint-topic-b "topic-b")
     (map-has-not config datapoint-topic-b "topic-a")
     (map-has-not config datapoint-topic-a "topic-b"))
-  (has-some-metrics)
-  )
+  (has-some-metrics))
 
 (deftest map-creation-is-protected
   (let [_ (info (push-data-point (random-data-point) "topic-a"))
