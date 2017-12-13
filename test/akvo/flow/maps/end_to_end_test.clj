@@ -185,6 +185,16 @@
              :keycloak       {:url      (System/getenv "KEYCLOAK_URL")
                               :user     "akvo-flow"
                               :password "3918fbb4-3bc3-445a-8445-76826603b227"}})
+(defn has-some-metrics []
+  (is (seq
+        (->>
+          (http/proxy-request http-client {:method :get
+                                           :url    "http://localhost:3000/metrics"})
+          :body
+          clojure.string/split-lines
+          (filter #(clojure.string/includes? % "fn_duration_seconds_bucket"))
+          (filter #(clojure.string/includes? % "upsert-datapoints"))
+          (filter #(clojure.string/includes? % "topic-a.datapoint"))))))
 
 (deftest do-not-mix-data-from-different-topics
   (let [datapoint (random-data-point)
@@ -195,7 +205,9 @@
     (map-has config datapoint-topic-a "topic-a")
     (map-has config datapoint-topic-b "topic-b")
     (map-has-not config datapoint-topic-b "topic-a")
-    (map-has-not config datapoint-topic-a "topic-b")))
+    (map-has-not config datapoint-topic-a "topic-b"))
+  (has-some-metrics)
+  )
 
 (deftest map-creation-is-protected
   (let [_ (info (push-data-point (random-data-point) "topic-a"))
