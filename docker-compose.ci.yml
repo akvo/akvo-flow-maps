@@ -21,7 +21,7 @@ services:
       KEYCLOAK_URL: http://keycloak:8080/auth
       KEYCLOAK_TEST_PASSWORD: ${KEYCLOAK_TEST_PASSWORD}
     volumes:
-      - .:/app
+      - ./backend:/app
       - ~/.m2:/root/.m2
       - ~/.lein:/root/.lein
       - ./postgres/provision:/pg-certs

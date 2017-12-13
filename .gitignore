@@ -10,7 +10,12 @@ pom.xml.asc
 /.nrepl-port
 /.dir-locals.el
 /profiles.clj
-/dev/resources/local.edn
-/dev/src/local.clj
+/backend/dev/resources/local.edn
+/backend/dev/src/local.clj
 .idea
 *.iml
+.DS_Store
+backend/.nrepl-port
+backend/logs/
+backend/src/akvo/flow/.DS_Store
+backend/target/
