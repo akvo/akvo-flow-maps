@@ -1,9 +1,9 @@
-(ns akvo.flow.maps.master-db.create-tenant
+(ns akvo.flow.maps.consumer.master-db.create-tenant
   (:require [hugsql.core :as hugsql]
             ring.middleware.params)
   (:import (java.net URI)))
 
-(hugsql/def-db-fns "akvo/flow/maps/master_db/masterdb.sql")
+(hugsql/def-db-fns "akvo/flow/maps/consumer/master_db/masterdb.sql")
 
 (defn- parse-postgres-jdbc [url]
   (assert (clojure.string/starts-with? url "jdbc:postgresql"))

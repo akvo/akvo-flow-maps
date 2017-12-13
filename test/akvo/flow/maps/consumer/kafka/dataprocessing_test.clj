@@ -1,7 +1,7 @@
-(ns akvo.flow.maps.kafka.dataprocessing-test
+(ns akvo.flow.maps.consumer.kafka.dataprocessing-test
   (:require
-    [akvo.flow.maps.kafka.datapoint-processing :as dp]
-    [akvo.flow.maps.master-db.core :as mb]
+    [akvo.flow.maps.consumer.kafka.datapoint-processing :as dp]
+    [akvo.flow.maps.consumer.master-db.core :as mb]
     [clojure.test :refer :all]))
 
 (defn kafka-message [topic value]

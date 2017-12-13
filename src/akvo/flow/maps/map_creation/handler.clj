@@ -5,7 +5,7 @@
             ring.middleware.params
             clojure.set
             [cheshire.core :as json]
-            [akvo.flow.maps.master-db.create-tenant :as create-tenant]))
+            [akvo.flow.maps.consumer.master-db.create-tenant :as create-tenant]))
 
 (defn windshaft-request [windshaft-url tenant-info {:keys [request-method headers body-params]}]
   (if-not tenant-info

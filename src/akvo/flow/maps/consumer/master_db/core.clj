@@ -1,4 +1,4 @@
-(ns akvo.flow.maps.master-db.core
+(ns akvo.flow.maps.consumer.master-db.core
   (:require
     [integrant.core :as ig]
     ring.middleware.params
@@ -7,7 +7,7 @@
     clojure.walk
     ragtime.jdbc
     [hikari-cp.core :as hikari]
-    [akvo.flow.maps.master-db.create-tenant :as create-tenant])
+    [akvo.flow.maps.consumer.master-db.create-tenant :as create-tenant])
   (:import (com.zaxxer.hikari HikariConfig)))
 
 (defmethod ig/init-key ::migration [_ config]

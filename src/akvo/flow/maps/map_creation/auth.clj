@@ -1,20 +1,17 @@
-(ns akvo.flow.maps.auth
+(ns akvo.flow.maps.map-creation.auth
   (:require [integrant.core :as ig]
             [buddy.auth.middleware :as buddy-mw]
-            [buddy.auth.backends :as backends]
             [buddy.auth.protocols :as proto]
             [buddy.auth.accessrules :as accessrules]
             buddy.auth.backends.token
             [buddy.auth :refer [authenticated?]]
             [buddy.auth.http :as http]
             [clojure.tools.logging :as log]
-            [clojure.java.io :as io]
             [cheshire.core :as json])
-  (:import (org.keycloak.adapters KeycloakDeploymentBuilder KeycloakDeployment)
+  (:import (org.keycloak.adapters KeycloakDeploymentBuilder)
            (org.apache.http.impl.client HttpClients)
            (org.apache.http.client.config RequestConfig)
            (java.util.concurrent TimeUnit)
-           (buddy.auth.protocols IAuthorization)
            (org.keycloak.adapters.rotation AdapterRSATokenVerifier)
            (org.keycloak.representations AccessToken)
            (java.io ByteArrayInputStream)))

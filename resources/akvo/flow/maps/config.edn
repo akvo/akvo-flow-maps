@@ -10,11 +10,11 @@
   :minimum-idle      2
   :maximum-pool-size 5}
 
- :duct.migrator/ragtime {:migrations ^:replace #ig/ref :akvo.flow.maps.master-db.core/migration}
+ :duct.migrator/ragtime {:migrations ^:replace #ig/ref :akvo.flow.maps.consumer.master-db.core/migration}
 
- :akvo.flow.maps.master-db.core/migration {}
+ :akvo.flow.maps.consumer.master-db.core/migration {}
 
- :akvo.flow.maps.master-db.core/master-db
+ :akvo.flow.maps.consumer.master-db.core/master-db
  {:wait-for-migrations #ig/ref :duct.migrator/ragtime
   :master-db-pool #ig/ref :duct.database/sql
   :master-db-url #duct/env "DATABASE_URL"}
@@ -31,8 +31,8 @@
                      :idle-in-pool-timeout 60000}
   :windshaft-url "http://flow-maps-windshaft:4000/layergroup"}
 
- :akvo.flow.maps.kafka.core/consumer
- {:db #ig/ref :akvo.flow.maps.master-db.core/master-db
+ :akvo.flow.maps.consumer.kafka.core/consumer
+ {:db #ig/ref :akvo.flow.maps.consumer.master-db.core/master-db
   :metrics-collector #ig/ref :akvo.flow.maps.monitoring/collector
   :consumer-properties {:bootstrap.servers #duct/env "KAFKA_SERVERS"
                         :max.poll.records #duct/env ["MAX_POLL_RECORDS" Int :or 100]
@@ -40,10 +40,10 @@
   :schema-registry #duct/env "KAFKA_SCHEMA_REGISTRY"}
 
  :duct.core/handler
- {:middleware ^:distinct [#ig/ref :akvo.flow.maps.auth/middleware
+ {:middleware ^:distinct [#ig/ref :akvo.flow.maps.map-creation.auth/middleware
                           #ig/ref :akvo.flow.maps.monitoring/middleware]}
 
- :akvo.flow.maps.auth/middleware {:url #duct/env "KEYCLOAK_URL"}
+ :akvo.flow.maps.map-creation.auth/middleware {:url #duct/env "KEYCLOAK_URL"}
 
  :akvo.flow.maps.monitoring/collector {}
  :akvo.flow.maps.monitoring/middleware {:collector #ig/ref :akvo.flow.maps.monitoring/collector}

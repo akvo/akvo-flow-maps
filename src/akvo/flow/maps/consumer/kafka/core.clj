@@ -1,11 +1,11 @@
-(ns akvo.flow.maps.kafka.core
+(ns akvo.flow.maps.consumer.kafka.core
   (:require
     [franzy.clients.consumer.client :as consumer]
     [franzy.clients.consumer.protocols :as cp]
     [thdr.kfk.avro-bridge.core :as avro]
     [franzy.serialization.deserializers :as deserializers]
     [integrant.core :as ig]
-    [akvo.flow.maps.kafka.datapoint-processing :as dp]
+    [akvo.flow.maps.consumer.kafka.datapoint-processing :as dp]
     [clojure.tools.logging :refer [info debug error]])
   (:import (io.confluent.kafka.serializers KafkaAvroDeserializer)))
 

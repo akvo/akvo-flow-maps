@@ -1,6 +1,6 @@
-(ns akvo.flow.maps.kafka.datapoint-processing
+(ns akvo.flow.maps.consumer.kafka.datapoint-processing
   (:require
-    [akvo.flow.maps.master-db.core :as master-db]
+    [akvo.flow.maps.consumer.master-db.core :as master-db]
     clojure.set
     [clojure.java.jdbc :as jdbc]
     [clojure.tools.logging :as log]
