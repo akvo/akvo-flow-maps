@@ -30,11 +30,11 @@
      :port     5432
      :host     "postgres"} "jdbc:postgresql://postgres/some_db?ssl=false&user=a_valid_user&password=a_valid_password")
 
-    {:password "a_valid_password"
-     :username "a_valid_user"
-     :database "some_db"
-     :port     33333433
-     :host     "postgres"} "jdbc:postgresql://postgres:33333433/some_db?ssl=false&user=a_valid_user&password=a_valid_password"
+  {:password "a_valid_password"
+   :username "a_valid_user"
+   :database "some_db"
+   :port     33333433
+   :host     "postgres"} "jdbc:postgresql://postgres:33333433/some_db?ssl=false&user=a_valid_user&password=a_valid_password"
 
   )
 
@@ -53,7 +53,8 @@
       (master-db/create-tenant-db master-db tenant)
       (master-db/create-tenant-db master-db tenant)
       (is (some? (master-db/pool-for-tenant master-db tenant)))
-      (is (= #{:port :password :username :host :database} (set (keys (master-db/tenant-info master-db tenant)))))
+      (is (= #{:port :password :username :host :database} (set (keys (master-db/tenant-info-if-ready master-db tenant)))))
+      (is (master-db/is-db-ready? (master-db/known-dbs master-db) tenant))
       (finally
         (cleanup master-db db-url tenant)))))
 
@@ -61,10 +62,30 @@
   (let [db-url (System/getenv "DATABASE_URL")
         master-db (ig/init-key ::master-db/master-db {:master-db-pool {:spec {:connection-uri db-url}}
                                                       :master-db-url  db-url})
-        tenant (str "test,xdr..,avlkmasdl.-kvm" (System/currentTimeMillis))
+        tenant (str "multithreaded-create-db" (System/currentTimeMillis))
         workers (doall (repeatedly 5 #(future (master-db/create-tenant-db master-db tenant))))]
     (try
       (is (every? #{:done} (map deref workers)))
       (is (empty? (jdbc/query (master-db/pool-for-tenant master-db tenant) ["SELECT * FROM datapoint"])))
+      (is (master-db/is-db-ready? (master-db/known-dbs master-db) tenant))
+      (finally
+        (cleanup master-db db-url tenant)))))
+
+(deftest ^:integration get-info-while-creating-db
+  (let [db-url (System/getenv "DATABASE_URL")
+        master-db (ig/init-key ::master-db/master-db {:master-db-pool {:spec {:connection-uri db-url}}
+                                                      :master-db-url  db-url})
+        tenant (str "get-info-while-creating-db" (System/currentTimeMillis))
+        create-db-thread (future (master-db/create-tenant-db master-db tenant))
+        workers (doall (repeatedly 5 #(future
+                                        (let [tentant-info (#'master-db/maybe-load-tenant master-db tenant)]
+                                          (when (or (nil? tentant-info)
+                                                    (and (create-tenant/is-db-ready? tentant-info) (::master-db/connection-pool tentant-info))
+                                                    (and (not (create-tenant/is-db-ready? tentant-info)) (not (::master-db/connection-pool tentant-info))))
+                                            :ok)))))]
+    (try
+      @create-db-thread
+      (is (every? #{:ok} (map deref workers)))
+      (is (master-db/is-db-ready? (master-db/known-dbs master-db) tenant))
       (finally
         (cleanup master-db db-url tenant)))))

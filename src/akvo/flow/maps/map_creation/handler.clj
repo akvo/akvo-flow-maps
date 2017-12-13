@@ -43,7 +43,7 @@
     (GET "/" [] {:status 200 :body "hi"})
     (context "/create-map" []
       (POST "/" {:as req}
-        (let [tenant-info (master-db/tenant-info db (:topic (:body-params req)))
+        (let [tenant-info (master-db/tenant-info-if-ready db (:topic (:body-params req)))
               [action result] (windshaft-request windshaft-url tenant-info req)]
           (case action
             :return result

@@ -1,6 +1,7 @@
 (ns akvo.flow.maps.kafka.dataprocessing-test
   (:require
     [akvo.flow.maps.kafka.datapoint-processing :as dp]
+    [akvo.flow.maps.master-db.core :as mb]
     [clojure.test :refer :all]))
 
 (defn kafka-message [topic value]
@@ -27,7 +28,7 @@
    :last-update-date-time #inst "2017-11-03T15:52:27.835-00:00"})
 
 (deftest happy-path
-  (let [actions (dp/actions {"topic-a.datapoint" {:db-creation-state "done"}}
+  (let [actions (dp/actions {"topic-a.datapoint" {::mb/info {:db-creation-state "done"}}}
                             [(kafka-message "topic-a.datapoint" (datapoint "id0"))
                              (kafka-message "topic-b.datapoint" (datapoint "id1"))
                              (kafka-message "topic-a.datapoint" (datapoint "id2"))])]
@@ -53,7 +54,7 @@
            actions))))
 
 (deftest create-db-if-it-is-not-created-yet
-  (let [actions (dp/actions {"topic-a.datapoint" {:db-creation-state "creating"}}
+  (let [actions (dp/actions {"topic-a.datapoint" {::mb/info {:db-creation-state "creating"}}}
                             [(kafka-message "topic-a.datapoint" (datapoint "id0"))])]
     (is (= [[:create-db {:tenant "topic-a.datapoint"}]
             [:upsert {:tenant "topic-a.datapoint"

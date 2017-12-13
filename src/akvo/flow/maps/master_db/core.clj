@@ -10,40 +10,57 @@
     [akvo.flow.maps.master-db.create-tenant :as create-tenant])
   (:import (com.zaxxer.hikari HikariConfig)))
 
-(def is-db-ready? create-tenant/is-db-ready?)
-
 (defmethod ig/init-key ::migration [_ config]
   (ragtime.jdbc/load-resources "akvo/flow/maps/db"))
+
+(defn is-db-ready? [known-dbs tenant]
+  (-> known-dbs
+      (get tenant)
+      ::info
+      create-tenant/is-db-ready?))
 
 (defn register-tenant-pool [pool-atom tenant-info]
   (swap! pool-atom
          (fn [current-tenants]
-           (if (contains? current-tenants (:tenant tenant-info))
+           (cond
+             (is-db-ready? current-tenants (:tenant tenant-info))
              current-tenants
+
+             (create-tenant/is-db-ready? tenant-info)
              (assoc current-tenants
                (:tenant tenant-info)
                {::info tenant-info
                 ::connection-pool
-                      {:datasource
-                       (hikari/make-datasource {:jdbc-url          (:db-uri tenant-info)
-                                                :idle-timeout      300000
-                                                :minimum-idle      0
-                                                :configure         (fn [^HikariConfig config]
-                                                                     (.setInitializationFailTimeout config -1))
-                                                :maximum-pool-size 1})}})))))
+                       {:datasource
+                        (hikari/make-datasource {:jdbc-url          (:db-uri tenant-info)
+                                                 :idle-timeout      300000
+                                                 :minimum-idle      0
+                                                 :configure         (fn [^HikariConfig config]
+                                                                      (.setInitializationFailTimeout config -1))
+                                                 :maximum-pool-size 1})}})
+
+             :else
+             (assoc current-tenants
+               (:tenant tenant-info)
+               {::info tenant-info})))))
 
 (defn pool-for-tenant [master-db tenant]
   (-> master-db ::tenants deref (get tenant) ::connection-pool))
 
 (defn known-dbs [master-db]
-  (-> master-db ::tenants deref keys set))
+  (-> master-db ::tenants deref))
 
-(defn tenant-info [master-db tenant]
-  (let [look-up-info #(some-> master-db ::tenants deref (get tenant) ::info :db-uri create-tenant/parse-postgres-jdbc)]
+(defn- maybe-load-tenant [master-db tenant]
+  (let [look-up-info #(some-> master-db ::tenants deref (get tenant))]
     (or (look-up-info)
         (when-let [tenant-creds (create-tenant/load-tenant-info (::master-db-pool master-db) tenant)]
           (register-tenant-pool (::tenants master-db) tenant-creds)
           (look-up-info)))))
+
+(defn tenant-info-if-ready [master-db tenant]
+  (when-let [tenant (maybe-load-tenant master-db tenant)]
+    (when (create-tenant/is-db-ready? (::info tenant))
+      (-> tenant ::info :db-uri create-tenant/parse-postgres-jdbc))))
 
 (defn create-tenant-db [master-db tenant]
   (let [tenant-info (create-tenant/create-tenant-db (::master-db-url master-db) tenant)]
@@ -70,7 +87,7 @@
 
 (comment
   (clojure.java.jdbc/execute! (dev/db) ["DROP DATABASE afm_topic_a_datapoint"] {:transaction? false})
-(clojure.java.jdbc/query (dev/db) ["SELECT pg_terminate_backend(pg_stat_activity.pid)\nFROM pg_stat_activity\n WHERE pid <> pg_backend_pid();"])
+  (clojure.java.jdbc/query (dev/db) ["SELECT pg_terminate_backend(pg_stat_activity.pid)\nFROM pg_stat_activity\n WHERE pid <> pg_backend_pid();"])
   (>/print-table (clojure.java.jdbc/query (dev/db) ["select * from pg_database"] {:transaction? false}))
   (ragtime.core/rollback (ragtime.jdbc/sql-database (dev/db)) (first (ragtime.jdbc/load-resources "akvo/flow/maps/db")))
   (ragtime.core/migrate-all (ragtime.jdbc/sql-database (dev/db)) {} (ragtime.jdbc/load-resources "akvo/flow/maps/db")))
