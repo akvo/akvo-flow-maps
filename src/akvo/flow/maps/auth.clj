@@ -44,20 +44,7 @@
           :identity
           (is-user-in-role "akvo_flow_maps_client")))
 
-(defmethod ig/init-key ::middleware [_ {:keys [keycloak-deployment]}]
-  #(-> %
-       (accessrules/wrap-access-rules {:policy :reject
-                                       :rules  [{:uri     "/create-map"
-                                                 :handler check-user-role}
-                                                {:uri     "/"
-                                                 :handler (constantly true)}]})
-       (buddy-mw/wrap-authentication (token-parser keycloak-deployment))
-       (buddy-mw/wrap-authorization (fn [request _]
-                                      (if (authenticated? request)
-                                        {:status 403}
-                                        {:status 401})))))
-
-(defmethod ig/init-key ::keycloak [_ {:keys [url]}]
+(defn create-keycloak-deployment [url]
   (let [keycloak-config (json/generate-string {:realm           "akvo",
                                                :bearer-only     true,
                                                :auth-server-url url,
@@ -81,7 +68,26 @@
                     .build))
     keycloak-deployment))
 
-(defmethod ig/halt-key! ::keycloak [_ ^KeycloakDeployment keycloak-deployment]
-  (some-> keycloak-deployment
+(defmethod ig/init-key ::middleware [_ {:keys [url]}]
+  (let [keycloak-deployment (create-keycloak-deployment url)
+        auth-handler (fn [handler]
+                       (-> handler
+                           (accessrules/wrap-access-rules {:policy :reject
+                                                           :rules  [{:uri     "/create-map"
+                                                                     :handler check-user-role}
+                                                                    {:uri     "/"
+                                                                     :handler (constantly true)}]})
+                           (buddy-mw/wrap-authentication (token-parser keycloak-deployment))
+                           (buddy-mw/wrap-authorization (fn [request _]
+                                                          (if (authenticated? request)
+                                                            {:status 403}
+                                                            {:status 401})))))]
+    (with-meta auth-handler
+               {::keycloak-deployment keycloak-deployment})))
+
+(defmethod ig/halt-key! ::middleware [_ auth-handler]
+  (some-> auth-handler
+          meta
+          ::keycloak-deployment
           .getClient
           .close))

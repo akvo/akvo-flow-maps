@@ -46,8 +46,7 @@
  {:middleware ^:distinct [#ig/ref :akvo.flow.maps.auth/middleware
                           #ig/ref :akvo.flow.maps.monitoring/middleware]}
 
- :akvo.flow.maps.auth/middleware {:keycloak-deployment #ig/ref :akvo.flow.maps.auth/keycloak}
- :akvo.flow.maps.auth/keycloak {:url #duct/env "KEYCLOAK_URL"}
+ :akvo.flow.maps.auth/middleware {:url #duct/env "KEYCLOAK_URL"}
 
  :akvo.flow.maps.monitoring/collector {}
  :akvo.flow.maps.monitoring/middleware {:collector #ig/ref :akvo.flow.maps.monitoring/collector}
