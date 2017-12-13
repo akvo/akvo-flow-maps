@@ -2,9 +2,6 @@
 insert into tenant (tenant, db_uri, db_creation_state)
        VALUES (:tenant, :db-uri, :db-creation-state) on conflict(tenant) do nothing
 
--- :name get-tenant-credentials :? :1
-select tenant, db_uri, db_creation_state from tenant where tenant = :tenant
-
 -- :name load-tenant-credentials :?
 select tenant, db_uri, db_creation_state from tenant
 

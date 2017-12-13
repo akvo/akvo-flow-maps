@@ -1,6 +1,7 @@
 (ns akvo.flow.maps.consumer.master-db.master-db-test
   (:require
     [akvo.flow.maps.consumer.master-db.core :as master-db]
+    [akvo.flow.maps.db-common :as db-common]
     [akvo.flow.maps.consumer.master-db.create-tenant :as create-tenant]
     [clojure.test :refer :all]
     [clojure.java.jdbc :as jdbc]
@@ -22,7 +23,7 @@
 (deftest parse-jdbc-url
   (are
     [expected url]
-    (= expected (create-tenant/jdbc-properties {:db-uri url}))
+    (= expected (db-common/jdbc-properties {:db-uri url}))
 
     {:password "a_valid_password"
      :username "a_valid_user"
@@ -54,8 +55,8 @@
       (master-db/create-tenant-db master-db tenant)
       (is (some? (master-db/pool-for-tenant master-db tenant)))
       (is (master-db/is-db-ready? (master-db/known-dbs master-db) tenant))
-      (let [tentant-info (create-tenant/load-tenant-info (::master-db/master-db-pool master-db) tenant)]
-        (is (= #{:port :password :username :host :database} (set (keys (create-tenant/jdbc-properties tentant-info))))))
+      (let [tentant-info (db-common/load-tenant-info (::master-db/master-db-pool master-db) tenant)]
+        (is (= #{:port :password :username :host :database} (set (keys (db-common/jdbc-properties tentant-info))))))
       (finally
         (cleanup master-db db-url tenant)))))
 

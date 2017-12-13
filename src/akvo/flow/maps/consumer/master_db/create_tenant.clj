@@ -1,23 +1,9 @@
 (ns akvo.flow.maps.consumer.master-db.create-tenant
   (:require [hugsql.core :as hugsql]
-            ring.middleware.params)
-  (:import (java.net URI)))
+            [akvo.flow.maps.db-common :as db-common]
+            ring.middleware.params))
 
 (hugsql/def-db-fns "akvo/flow/maps/consumer/master_db/masterdb.sql")
-
-(defn- parse-postgres-jdbc [url]
-  (assert (clojure.string/starts-with? url "jdbc:postgresql"))
-  (let [url (URI. (clojure.string/replace-first url "jdbc:" ""))]
-    (-> (#'ring.middleware.params/parse-params (.getQuery url) "UTF-8")
-        (select-keys ["user" "password"])
-        (assoc
-          :host (.getHost url)
-          :database (.substring (.getPath url) 1)
-          :port (if (= -1 (.getPort url)) 5432 (.getPort url)))
-        clojure.walk/keywordize-keys
-        (clojure.set/rename-keys {:user :username}))))
-
-(def jdbc-properties (comp parse-postgres-jdbc :db-uri))
 
 (defn db-uri [{:keys [host port database username password]}]
   (format "jdbc:postgresql://%s:%s/%s?ssl=true&user=%s&password=%s"
@@ -44,15 +30,8 @@
      (catch Exception e# (when-not (re-matches ~regex (or (.getMessage e#) ""))
                            (throw e#)))))
 
-(defn- parse-row [x]
-  (clojure.set/rename-keys x {:db_uri :db-uri
-                              :db_creation_state :db-creation-state}))
-
-(defn load-tenant-info [master-db tenant]
-  (parse-row (get-tenant-credentials master-db {:tenant tenant})))
-
 (defn load-all-tenant-info [master-db]
-  (map parse-row (load-tenant-credentials master-db)))
+  (map db-common/parse-row (load-tenant-credentials master-db)))
 
 (defn is-db-ready? [tenant-info]
   (= "done" (:db-creation-state tenant-info)))
@@ -65,7 +44,7 @@
                                                          :username (clojure.string/lower-case (str "afm_" (random-str-that-starts-with-a-letter)))
                                                          :password (random-str-that-starts-with-a-letter)}))
                             :db-creation-state "creating"})
-  (load-tenant-info master-db tenant))
+  (db-common/load-tenant-info master-db tenant))
 
 (defn- mark-as-done [master-db tenant]
   (update-tenant-state master-db {:tenant            tenant
@@ -96,9 +75,9 @@
     (clojure.string/replace #"[^a-z0-9]" "_")))
 
 (defn create-tenant-db [master-db-jdbc-url tenant]
-  (let [parsed-master-info (parse-postgres-jdbc master-db-jdbc-url)
+  (let [parsed-master-info (db-common/parse-postgres-jdbc master-db-jdbc-url)
         tenant-info (assign-user-and-password master-db-jdbc-url tenant (db-name-for-tenant tenant) parsed-master-info)
-        parsed-tenant-info (parse-postgres-jdbc (:db-uri tenant-info))]
+        parsed-tenant-info (db-common/parse-postgres-jdbc (:db-uri tenant-info))]
 
     (create-role-and-db master-db-jdbc-url parsed-tenant-info)
 

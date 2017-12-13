@@ -5,7 +5,7 @@
             ring.middleware.params
             clojure.set
             [cheshire.core :as json]
-            [akvo.flow.maps.consumer.master-db.create-tenant :as create-tenant]))
+            [akvo.flow.maps.db-common :as db-common]))
 
 (defn windshaft-request [windshaft-url tenant-info {:keys [request-method headers body-params]}]
   (if-not tenant-info
@@ -39,9 +39,9 @@
         (update :headers create-response-headers))))
 
 (defn tenant-info-if-ready [master-db tenant]
-  (when-let [tenant-creds (create-tenant/load-tenant-info master-db tenant)]
-    (when (create-tenant/is-db-ready? tenant-creds)
-      (-> tenant-creds create-tenant/jdbc-properties))))
+  (when-let [tenant-creds (db-common/load-tenant-info master-db tenant)]
+    (when (db-common/is-db-ready? tenant-creds)
+      (-> tenant-creds db-common/jdbc-properties))))
 
 (defn create-map-endpoint [db http-proxy windshaft-url]
   (context "/" []
