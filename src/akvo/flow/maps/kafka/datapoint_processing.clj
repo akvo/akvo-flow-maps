@@ -101,4 +101,5 @@
               (insert-batch (master-db/pool-for-tenant db (:tenant param)) (:rows param)))
 
             :create-db
-            (master-db/create-tenant-db db (:tenant param))))))))
+            (metrics metrics-collector "create-tenant-db" {}
+              (master-db/create-tenant-db db (:tenant param)))))))))
