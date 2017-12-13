@@ -1,7 +1,6 @@
 (ns akvo.flow.maps.map-creation.http-proxy
   (:require [http.async.client :as http]
-            [http.async.client.request :as http-req]
-            [integrant.core :as ig])
+            [http.async.client.request :as http-req])
   (:import (com.ning.http.client Request)))
 
 (defn proxy-request [client {:keys [method url] :as req}]
