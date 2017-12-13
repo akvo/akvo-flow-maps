@@ -38,7 +38,7 @@
         (update :status :code)
         (update :headers create-response-headers))))
 
-(defmethod ig/init-key ::endpoint [_ {:keys [http-proxy windshaft-url db]}]
+(defn create-map-endpoint [db http-proxy windshaft-url]
   (context "/" []
     (GET "/" [] {:status 200 :body "hi"})
     (context "/create-map" []
@@ -51,3 +51,14 @@
       (OPTIONS "/" {}
         {:headers {"Access-Control-Allow-Origin"  "*"
                    "Access-Control-Allow-Headers" "Content-Type"}}))))
+
+(defmethod ig/init-key ::endpoint [_ {:keys [http-proxy-config windshaft-url db]}]
+  (let [http-client (http-proxy/create-client http-proxy-config)
+        endpoints (create-map-endpoint db http-client windshaft-url)]
+    (with-meta endpoints {::http-client http-client})))
+
+(defmethod ig/halt-key! ::endpoint [_ routes]
+  (some-> routes
+          meta
+          ::http-client
+          http-proxy/destroy))

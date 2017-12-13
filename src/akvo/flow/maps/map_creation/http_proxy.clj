@@ -25,9 +25,3 @@
 
 (defn destroy [client]
   (http/close client))
-
-(defmethod ig/init-key ::http-client [_ config]
-   (create-client config))
-
-(defmethod ig/halt-key! ::http-client [_ client]
-  (destroy client))
