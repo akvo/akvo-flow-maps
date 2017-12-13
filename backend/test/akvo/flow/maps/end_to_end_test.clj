@@ -37,25 +37,25 @@
            (with-open [_ (Socket. host (int port))]
              true)))
 
-(defn check-db-is-up [f]
+(defn check-db-is-up []
   (try-for "DB not ready"
            60
            (jdbc/with-db-connection
              [conn {:connection-uri (System/getenv "DATABASE_URL")}]
-             (jdbc/query conn ["select * from datapoint"])))
-  (f))
+             (jdbc/query conn ["select * from tenant"]))))
 
-(defn check-servers-up [f]
+(defn check-servers-up []
   (wait-for-server "windshaft" 4000)
   (wait-for-server "flow-maps" 3000)
   (wait-for-server "keycloak" 8080)
   (wait-for-server "redis" 6379)
   (wait-for-server "schema-registry" 8081)
-  (wait-for-server "kafka" 29092)
-  (f))
+  (wait-for-server "kafka" 29092))
 
-(test/use-fixtures :once check-db-is-up)
-(test/use-fixtures :once check-servers-up)
+(test/use-fixtures :once (fn [f]
+                           (check-db-is-up)
+                           (check-servers-up)
+                           (f)))
 
 (def DataPointSchema-as-json
   (json/generate-string

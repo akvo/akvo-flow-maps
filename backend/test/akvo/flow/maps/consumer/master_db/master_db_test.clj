@@ -3,9 +3,14 @@
     [akvo.flow.maps.consumer.master-db.core :as master-db]
     [akvo.flow.maps.db-common :as db-common]
     [akvo.flow.maps.consumer.master-db.create-tenant :as create-tenant]
+    [akvo.flow.maps.end-to-end-test :as end-to-end-test]
     [clojure.test :refer :all]
     [clojure.java.jdbc :as jdbc]
     [integrant.core :as ig]))
+
+(use-fixtures :once (fn [f]
+                      (end-to-end-test/check-db-is-up)
+                      (f)))
 
 (deftest db-name
   (are
