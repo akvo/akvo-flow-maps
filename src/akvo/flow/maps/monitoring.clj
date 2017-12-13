@@ -20,8 +20,8 @@
           (let [gc-metrics-sum (CounterMetricFamily. "jvm_gc_collection_seconds_sum" "Time spent in a given JVM garbage collector in seconds." ["gc"])
                 gc-metrics-count (CounterMetricFamily. "jvm_gc_collection_seconds_count" "Amount of JVM garbage collector run" ["gc"])]
             (doseq [^GarbageCollectorMXBean gc garbage-collectors]
-              (.addMetric gc-metrics-sum [(str (.getName gc) "_sum")] (double (.getCollectionTime gc)))
-              (.addMetric gc-metrics-count [(str (.getName gc) "_count")] (double (.getCollectionCount gc))))
+              (.addMetric gc-metrics-sum [(.getName gc)] (double (.getCollectionTime gc)))
+              (.addMetric gc-metrics-count [(.getName gc)] (double (.getCollectionCount gc))))
             [gc-metrics-sum gc-metrics-count]))))))
 
 (defmethod ig/init-key ::collector [_ config]
