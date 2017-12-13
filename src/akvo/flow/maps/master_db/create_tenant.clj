@@ -5,7 +5,7 @@
 
 (hugsql/def-db-fns "akvo/flow/maps/master_db/masterdb.sql")
 
-(defn parse-postgres-jdbc [url]
+(defn- parse-postgres-jdbc [url]
   (assert (clojure.string/starts-with? url "jdbc:postgresql"))
   (let [url (URI. (clojure.string/replace-first url "jdbc:" ""))]
     (-> (#'ring.middleware.params/parse-params (.getQuery url) "UTF-8")
@@ -16,6 +16,8 @@
           :port (if (= -1 (.getPort url)) 5432 (.getPort url)))
         clojure.walk/keywordize-keys
         (clojure.set/rename-keys {:user :username}))))
+
+(def jdbc-properties (comp parse-postgres-jdbc :db-uri))
 
 (defn db-uri [{:keys [host port database username password]}]
   (format "jdbc:postgresql://%s:%s/%s?ssl=true&user=%s&password=%s"

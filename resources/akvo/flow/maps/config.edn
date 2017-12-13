@@ -23,7 +23,7 @@
  [#ig/ref :akvo.flow.maps.map-creation.handler/endpoint]
 
  :akvo.flow.maps.map-creation.handler/endpoint
- {:db #ig/ref :akvo.flow.maps.master-db.core/master-db
+ {:db #ig/ref :duct.database/sql
   :http-proxy-config {:connection-timeout   10000
                      :request-timeout      10000
                      :read-timeout         10000

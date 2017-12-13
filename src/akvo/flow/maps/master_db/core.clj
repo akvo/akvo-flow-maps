@@ -50,18 +50,6 @@
 (defn known-dbs [master-db]
   (-> master-db ::tenants deref))
 
-(defn- maybe-load-tenant [master-db tenant]
-  (let [look-up-info #(some-> master-db ::tenants deref (get tenant))]
-    (or (look-up-info)
-        (when-let [tenant-creds (create-tenant/load-tenant-info (::master-db-pool master-db) tenant)]
-          (register-tenant-pool (::tenants master-db) tenant-creds)
-          (look-up-info)))))
-
-(defn tenant-info-if-ready [master-db tenant]
-  (when-let [tenant (maybe-load-tenant master-db tenant)]
-    (when (create-tenant/is-db-ready? (::info tenant))
-      (-> tenant ::info :db-uri create-tenant/parse-postgres-jdbc))))
-
 (defn create-tenant-db [master-db tenant]
   (let [tenant-info (create-tenant/create-tenant-db (::master-db-url master-db) tenant)]
     (register-tenant-pool (::tenants master-db) tenant-info)
