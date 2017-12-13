@@ -17,7 +17,7 @@
 (defmethod ig/init-key ::consumer [_ {:keys [db schema-registry consumer-properties metrics-collector]}]
   (info "Initializing Kafka Consumer...")
   (let [consumer (consumer/make-consumer
-                   (merge {:group.id                "akvo-flow-maps-consumer-temp-change"
+                   (merge {:group.id                "akvo-flow-maps-consumer"
                            :client.id               client-id
                            :auto.offset.reset       :earliest
                            :enable.auto.commit      false
