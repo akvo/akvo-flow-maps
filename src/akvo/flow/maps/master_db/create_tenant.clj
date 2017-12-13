@@ -84,7 +84,7 @@
   (ignore-exception #"(?s).*column \"geom\" of relation \"datapoint\" already exists.*"
     (add-geom-column tenant-db))
 
-  (ignore-exception #"(?s).*duplicate key value violates unique constraint.*"
+  (ignore-exception #"(?s)(.*duplicate key value violates unique constraint.*)|(ERROR: relation .* already exists)"
     (create-indices tenant-db)))
 
 (defn db-name-for-tenant [tenant]
@@ -107,4 +107,4 @@
 
     (create-tables (:db-uri tenant-info))
     (mark-as-done master-db-jdbc-url tenant)
-    tenant-info))
+    (assoc tenant-info :db-creation-state "done")))
