@@ -1,1 +1,1 @@
-{:akvo.flow.maps.kafka.core/consumer [:duct/daemon]}
+{:akvo.flow.maps.consumer.kafka.core/consumer [:duct/daemon]}
