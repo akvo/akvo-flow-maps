@@ -190,7 +190,7 @@
   (is (seq
         (->>
           (http/proxy-request http-client {:method :get
-                                           :url    "http://localhost:3000/metrics"})
+                                           :url    "http://flow-maps:3000/metrics"})
           :body
           clojure.string/split-lines
           (filter #(clojure.string/includes? % "fn_duration_seconds_bucket"))
