@@ -38,7 +38,6 @@
              true)))
 
 (defn check-db-is-up []
-  (println "env is " (System/getenv))
   (try-for "DB not ready"
            60
            (jdbc/with-db-connection
