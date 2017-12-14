@@ -8,10 +8,6 @@
     [clojure.java.jdbc :as jdbc]
     [integrant.core :as ig]))
 
-(use-fixtures :once (fn [f]
-                      (end-to-end-test/check-db-is-up)
-                      (f)))
-
 (deftest db-name
   (are
     [topic-name expected-name]
@@ -51,6 +47,7 @@
     (jdbc/execute! db-url [(str "DROP DATABASE " (create-tenant/db-name-for-tenant tenant))] {:transaction? false})))
 
 (deftest ^:integration create-db
+  (end-to-end-test/check-db-is-up)
   (let [db-url (System/getenv "DATABASE_URL")
         master-db (ig/init-key ::master-db/master-db {:master-db-pool {:spec {:connection-uri db-url}}
                                                       :master-db-url  db-url})
@@ -66,6 +63,7 @@
         (cleanup master-db db-url tenant)))))
 
 (deftest ^:integration multithreaded-create-db
+  (end-to-end-test/check-db-is-up)
   (let [db-url (System/getenv "DATABASE_URL")
         master-db (ig/init-key ::master-db/master-db {:master-db-pool {:spec {:connection-uri db-url}}
                                                       :master-db-url  db-url})
