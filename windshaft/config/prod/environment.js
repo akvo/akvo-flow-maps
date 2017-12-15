@@ -10,3 +10,8 @@ module.exports.renderer = {
     }
 };
 module.exports.enable_cors = true;
+module.exports.statsd = {
+    host: 'localhost',
+    port: 9125,
+    cacheDns: true
+};

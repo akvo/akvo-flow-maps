@@ -14,11 +14,4 @@ module.exports.renderer = {
         bufferSize: 0 // no need for a buffer as it is just useful if we have labels/tags in the map.
     }
 };
-module.exports.enable_cors = false;
-module.exports.statsd = {
-    host: 'statsd-server',
-    port: 8125,
-    prefix: 'dev.'+ require("os").hostname() + ".",
-    cacheDns: true
-};
 module.exports.enable_cors = true;
