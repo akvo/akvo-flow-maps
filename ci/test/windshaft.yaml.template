@@ -32,7 +32,7 @@ spec:
               key: encryption_key
       - name: flow-maps-statsd-to-prometheus
       # If you change this version, probably you want to change the /windsahft/Dockerfile version
-        image: akvo/akvo-maps-statsd-to-prometheus:4b3cbbd5
+        image: akvo/akvo-maps-statsd-to-prometheus:196fa136
         ports:
         - containerPort: 9125
         - containerPort: 9102
