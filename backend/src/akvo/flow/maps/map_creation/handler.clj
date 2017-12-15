@@ -25,9 +25,7 @@
 
 (defn create-response-headers [headers]
   {"Content-Type"                 (:content-type headers)
-   "Date"                         (:date headers)
-   "Access-Control-Allow-Origin"  "*"
-   "Access-Control-Allow-Headers" "Content-Type"})
+   "Date"                         (:date headers)})
 
 (defn build-response [windshaft-response]
   (if (:error windshaft-response)
@@ -52,10 +50,7 @@
               [action result] (windshaft-request windshaft-url tenant-info req)]
           (case action
             :return result
-            :proxy (build-response (http-proxy/proxy-request http-proxy result)))))
-      (OPTIONS "/" {}
-        {:headers {"Access-Control-Allow-Origin"  "*"
-                   "Access-Control-Allow-Headers" "Content-Type"}}))))
+            :proxy (build-response (http-proxy/proxy-request http-proxy result))))))))
 
 (defmethod ig/init-key ::endpoint [_ {:keys [http-proxy-config windshaft-url db]}]
   (let [http-client (http-proxy/create-client http-proxy-config)
