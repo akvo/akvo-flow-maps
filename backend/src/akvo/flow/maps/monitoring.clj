@@ -24,6 +24,13 @@
               (.addMetric gc-metrics-count [(.getName gc)] (double (.getCollectionCount gc))))
             [gc-metrics-sum gc-metrics-count]))))))
 
+(defn wrap-health-check
+  [handler]
+  (fn [{:keys [request-method uri] :as request}]
+    (if (and (= uri "/healthz") (= request-method :get))
+      {:status 200}
+      (handler request))))
+
 (defmethod ig/init-key ::collector [_ config]
   (-> (prometheus/collector-registry)
       (prometheus/register
@@ -48,7 +55,9 @@
       (ring/initialize)))
 
 (defmethod ig/init-key ::middleware [_ {:keys [collector]}]
-  #(ring/wrap-metrics % collector))
+  #(-> %
+       wrap-health-check
+       (ring/wrap-metrics collector)))
 
 (comment
   (slurp "http://localhost:3000/metrics")

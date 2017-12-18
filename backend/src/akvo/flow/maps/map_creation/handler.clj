@@ -42,15 +42,12 @@
       (-> tenant-creds db-common/jdbc-properties))))
 
 (defn create-map-endpoint [db http-proxy windshaft-url]
-  (context "/" []
-    (GET "/" [] {:status 200 :body "hi"})
-    (context "/create-map" []
-      (POST "/" {:as req}
-        (let [tenant-info (tenant-info-if-ready db (:topic (:body-params req)))
-              [action result] (windshaft-request windshaft-url tenant-info req)]
-          (case action
-            :return result
-            :proxy (build-response (http-proxy/proxy-request http-proxy result))))))))
+  (POST "/create-map" {:as req}
+    (let [tenant-info (tenant-info-if-ready db (:topic (:body-params req)))
+          [action result] (windshaft-request windshaft-url tenant-info req)]
+      (case action
+        :return result
+        :proxy (build-response (http-proxy/proxy-request http-proxy result))))))
 
 (defmethod ig/init-key ::endpoint [_ {:keys [http-proxy-config windshaft-url db]}]
   (let [http-client (http-proxy/create-client http-proxy-config)
