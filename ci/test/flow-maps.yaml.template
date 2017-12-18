@@ -28,6 +28,11 @@ spec:
         image: eu.gcr.io/akvo-lumen/akvo-flow-maps-consumer:$TRAVIS_COMMIT
         ports:
         - containerPort: 3000
+        livenessProbe:
+          httpGet:
+            path: /healtz
+            port: 3000
+          initialDelaySeconds: 10
         resources:
           requests:
             cpu: "50m"
