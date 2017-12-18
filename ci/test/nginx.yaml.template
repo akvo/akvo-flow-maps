@@ -19,6 +19,11 @@ spec:
         image: eu.gcr.io/akvo-lumen/akvo-flow-maps-nginx:$TRAVIS_COMMIT
         ports:
         - containerPort: 80
+        livenessProbe:
+          httpGet:
+            path: /healtz
+            port: 80
+          initialDelaySeconds: 5
         resources:
           requests:
             cpu: "50m"
