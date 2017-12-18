@@ -28,7 +28,7 @@
       (.configure {"schema.registry.url" schema-registry} false))
     {:poll-timeout-ms 1000}))
 
-(defmethod ig/init-key ::consumer [_ {:keys [db schema-registry consumer-properties metrics-collector]}]
+(defmethod ig/init-key ::consumer [_ {:keys [db schema-registry consumer-properties metrics-collector die-on-uncaught-exception]}]
   (info "Initializing Kafka Consumer...")
   (let [consumer (create-consumer schema-registry consumer-properties)
         stop-flag (atom false)]
@@ -45,7 +45,10 @@
             (cp/commit-offsets-sync! consumer)))
         (info "Kafka consumer has been stopped")
         (catch Throwable e
-          (error e "Kafka consumer died unexpectedly. Service will need to be restarted."))
+          (error e "Kafka consumer died unexpectedly. No messages will be consumed")
+          (when die-on-uncaught-exception
+            (error "Exiting service as consumer died.")
+            (System/exit 1)))
         (finally
           (.close consumer))))
     {:stop-flag stop-flag
