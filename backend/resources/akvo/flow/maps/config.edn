@@ -38,7 +38,7 @@
                         :max.poll.records #duct/env ["MAX_POLL_RECORDS" Int :or 100]
                         :metadata.max.age.ms #duct/env ["METADATA_MAX_AGE_MS" Int :or 60000]}
   :schema-registry #duct/env "KAFKA_SCHEMA_REGISTRY"
-  :die-on-uncaught-exception #duct/env ["DIE_ON_UNCAUGHT_EXCEPTION" Bool :or true]}
+  :die-on-uncaught-exception #duct/env "DIE_ON_UNCAUGHT_EXCEPTION"}
 
  :duct.core/handler
  {:middleware ^:distinct [#ig/ref :akvo.flow.maps.map-creation.auth/middleware
