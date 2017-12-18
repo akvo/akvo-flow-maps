@@ -12,12 +12,6 @@
     (org.apache.avro.io EncoderFactory)
     (java.io ByteArrayOutputStream)))
 
-(defn check-servers-up [f]
-  ;; wait for the version to be deployed
-  (f))
-
-(use-fixtures :once check-servers-up)
-
 (defn ->avro-json [o]
   (let [bo (ByteArrayOutputStream.)
         enc (.jsonEncoder (EncoderFactory/get) end-to-end/DataPointSchema bo)]
