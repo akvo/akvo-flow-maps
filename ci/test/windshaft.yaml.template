@@ -24,6 +24,11 @@ spec:
             path: /healthz
             port: 4000
           initialDelaySeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 4000
+          initialDelaySeconds: 5
         resources:
           requests:
             cpu: "50m"
@@ -42,6 +47,10 @@ spec:
         - containerPort: 9125
         - containerPort: 9102
         livenessProbe:
+          tcpSocket:
+             port: 9125
+          initialDelaySeconds: 5
+        readinessProbe:
           tcpSocket:
              port: 9125
           initialDelaySeconds: 5
