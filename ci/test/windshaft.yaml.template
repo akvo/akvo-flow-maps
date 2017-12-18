@@ -19,6 +19,11 @@ spec:
         image: eu.gcr.io/akvo-lumen/akvo-flow-maps-windshaft:$TRAVIS_COMMIT
         ports:
         - containerPort: 4000
+        livenessProbe:
+          httpGet:
+            path: /healtz
+            port: 4000
+          initialDelaySeconds: 5
         resources:
           requests:
             cpu: "50m"
@@ -32,10 +37,14 @@ spec:
               key: encryption_key
       - name: flow-maps-statsd-to-prometheus
       # If you change this version, probably you want to change the /windsahft/Dockerfile version
-        image: akvo/akvo-maps-statsd-to-prometheus:196fa136
+        image: akvo/akvo-maps-statsd-to-prometheus:5c6e780b
         ports:
         - containerPort: 9125
         - containerPort: 9102
+        livenessProbe:
+          tcpSocket:
+             port: 9125
+           initialDelaySeconds: 5
         resources:
           requests:
             cpu: "10m"
