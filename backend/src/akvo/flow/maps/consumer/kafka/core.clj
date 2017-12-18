@@ -14,26 +14,29 @@
     (str (System/getenv "POD_NAMESPACE") "_" (System/getenv "POD_NAME"))
     (str "local-consumer-" (System/currentTimeMillis))))
 
+(defn create-consumer [schema-registry consumer-properties]
+  (consumer/make-consumer
+    (merge {:group.id                "akvo-flow-maps-consumer"
+            :client.id               client-id
+            :auto.offset.reset       :earliest
+            :enable.auto.commit      false
+            :auto.commit.interval.ms 10000}
+           consumer-properties)
+    (deserializers/long-deserializer)
+    (doto
+      (KafkaAvroDeserializer.)
+      (.configure {"schema.registry.url" schema-registry} false))
+    {:poll-timeout-ms 1000}))
+
 (defmethod ig/init-key ::consumer [_ {:keys [db schema-registry consumer-properties metrics-collector]}]
   (info "Initializing Kafka Consumer...")
-  (let [consumer (consumer/make-consumer
-                   (merge {:group.id                "akvo-flow-maps-consumer"
-                           :client.id               client-id
-                           :auto.offset.reset       :earliest
-                           :enable.auto.commit      false
-                           :auto.commit.interval.ms 10000}
-                          consumer-properties)
-                   (deserializers/long-deserializer)
-                   (doto
-                     (KafkaAvroDeserializer.)
-                     (.configure {"schema.registry.url" schema-registry} false))
-                   {:poll-timeout-ms 1000})
-        stop (atom false)]
+  (let [consumer (create-consumer schema-registry consumer-properties)
+        stop-flag (atom false)]
     (cp/subscribe-to-partitions! consumer #".*datapoint.*")
     (info "Subscribing to .*datapoint.*")
     (future
       (try
-        (while (not @stop)
+        (while (not @stop-flag)
           (let [records (cp/poll! consumer)
                 batch (into [] (map (fn [r]
                                       (update r :value avro/->clj))) records)]
@@ -45,8 +48,8 @@
           (error e "Kafka consumer died unexpectedly. Service will need to be restarted."))
         (finally
           (.close consumer))))
-    {:stop     stop
-     :consumer consumer}))
+    {:stop-flag stop-flag
+     :consumer  consumer}))
 
-(defmethod ig/halt-key! ::consumer [_ {:keys [stop]}]
-  (reset! stop true))
+(defmethod ig/halt-key! ::consumer [_ {:keys [stop-flag]}]
+  (reset! stop-flag true))
