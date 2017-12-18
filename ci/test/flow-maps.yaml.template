@@ -73,6 +73,11 @@ spec:
           - --source=flow-maps-consumer:http://localhost:3000/metrics
           - --pod-id=$(POD_NAME)
           - --namespace-id=$(POD_NAMESPACE)
+        resources:
+          requests:
+            cpu: "10m"
+          limits:
+            cpu: "100m"
         env:
           - name: POD_NAME
             valueFrom:
