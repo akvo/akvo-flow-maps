@@ -69,7 +69,7 @@ services:
       METADATA_MAX_AGE_MS: 500
       DATABASE_URL: "jdbc:postgresql://postgres/master_db?user=dbuser&password=dbpassword&ssl=true"
       KEYCLOAK_URL: http://keycloak:8080/auth
-      DIE_ON_UNCAUGHT_EXCEPTION: false
+      DIE_ON_UNCAUGHT_EXCEPTION: "false"
     depends_on:
       - postgres
       - kafka
