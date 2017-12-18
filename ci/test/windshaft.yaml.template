@@ -21,7 +21,7 @@ spec:
         - containerPort: 4000
         livenessProbe:
           httpGet:
-            path: /healtz
+            path: /healthz
             port: 4000
           initialDelaySeconds: 5
         resources:
