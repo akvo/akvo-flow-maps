@@ -1,7 +1,8 @@
 (ns akvo.flow.maps.db-common
   (:require clojure.string
             clojure.set
-            [hugsql.core :as hugsql])
+            [hugsql.core :as hugsql]
+            ring.middleware.params)
   (:import (java.net URI)))
 
 (defn parse-postgres-jdbc [url]
