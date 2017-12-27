@@ -23,12 +23,12 @@ spec:
           httpGet:
             path: /healthz
             port: 4000
-          initialDelaySeconds: 5
+          initialDelaySeconds: 30
         readinessProbe:
           httpGet:
             path: /healthz
             port: 4000
-          initialDelaySeconds: 5
+          initialDelaySeconds: 30
         resources:
           requests:
             cpu: "50m"
