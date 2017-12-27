@@ -12,6 +12,9 @@ kind: Deployment
 metadata:
   name: flow-maps-consumer
   namespace: default
+  annotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '3000'
 spec:
   replicas: 1
   selector:
@@ -105,6 +108,8 @@ metadata:
   namespace: default
   labels:
     run: flow-maps-consumer
+  annotations:
+    prometheus.io/scrape: 'true'
 spec:
   type: NodePort
   ports:
