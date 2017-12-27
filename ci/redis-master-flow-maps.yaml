@@ -11,6 +11,7 @@ spec:
         run: redis
         role: master
         client: flow-maps
+        app: flow-maps
     spec:
       containers:
       - name: master

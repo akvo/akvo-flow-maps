@@ -13,6 +13,7 @@ spec:
       labels:
         run: flow-maps-nginx
         flow-maps-version: $TRAVIS_COMMIT
+        app: flow-maps
     spec:
       containers:
       - name: flow-maps-nginx

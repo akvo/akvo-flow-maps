@@ -16,6 +16,7 @@ spec:
       labels:
         run: flow-maps-windshaft
         flow-maps-version: $TRAVIS_COMMIT
+        app: flow-maps
     spec:
       containers:
       - name: flow-maps-windshaft
