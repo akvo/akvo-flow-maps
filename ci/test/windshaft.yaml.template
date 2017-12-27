@@ -3,9 +3,6 @@ kind: Deployment
 metadata:
   name: flow-maps-windshaft
   namespace: default
-  annotations:
-    prometheus.io/scrape: 'true'
-    prometheus.io/port: '9102'
 spec:
   replicas: 1
   selector:
@@ -17,6 +14,9 @@ spec:
         run: flow-maps-windshaft
         flow-maps-version: $TRAVIS_COMMIT
         app: flow-maps
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9102'
     spec:
       containers:
       - name: flow-maps-windshaft
@@ -96,8 +96,6 @@ metadata:
   namespace: default
   labels:
     run: flow-maps-windshaft
-  annotations:
-    prometheus.io/scrape: 'true'
 spec:
   type: NodePort
   ports:
