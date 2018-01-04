@@ -1,3 +1,11 @@
+apiVersion: v1
+data:
+  EXTRA_NODE_OPTS: ''
+kind: ConfigMap
+metadata:
+  name: flow-maps-windshaft
+  namespace: default
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -44,9 +52,14 @@ spec:
             secretKeyRef:
               name: flow-maps-windshaft
               key: encryption_key
+        - name: EXTRA_NODE_OPTS
+           valueFrom:
+             configMapKeyRef:
+               name: flow-maps-windshaft
+               key: EXTRA_NODE_OPTS
       - name: flow-maps-statsd-to-prometheus
       # If you change this version, probably you want to change the /windsahft/Dockerfile version
-        image: akvo/akvo-maps-statsd-to-prometheus:cf6e793b
+        image: akvo/akvo-maps-statsd-to-prometheus:0c6b3f41
         ports:
         - containerPort: 9125
         - containerPort: 9102
