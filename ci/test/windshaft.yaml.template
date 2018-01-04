@@ -53,7 +53,7 @@ spec:
               name: flow-maps-windshaft
               key: encryption_key
         - name: EXTRA_NODE_OPTS
-           valueFrom:
+          valueFrom:
              configMapKeyRef:
                name: flow-maps-windshaft
                key: EXTRA_NODE_OPTS
