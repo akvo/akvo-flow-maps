@@ -59,7 +59,7 @@ spec:
                key: EXTRA_NODE_OPTS
       - name: flow-maps-statsd-to-prometheus
       # If you change this version, probably you want to change the /windsahft/Dockerfile version
-        image: akvo/akvo-maps-statsd-to-prometheus:0c6b3f41
+        image: akvo/akvo-maps-statsd-to-prometheus:da60926a
         ports:
         - containerPort: 9125
         - containerPort: 9102
