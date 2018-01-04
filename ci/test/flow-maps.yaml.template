@@ -22,6 +22,10 @@ spec:
       labels:
         run: flow-maps-consumer
         flow-maps-version: $TRAVIS_COMMIT
+        app: flow-maps
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '3000'
     spec:
       containers:
       - name: flow-maps-consumer

@@ -4,7 +4,7 @@ PROJECT_NAME=akvo-lumen
 
 starttime=`date +%s`
 
-while [ $(( $(date +%s) - 120 )) -lt ${starttime} ]; do
+while [ $(( $(date +%s) - 300 )) -lt ${starttime} ]; do
 
     consumer_status=`kubectl get pods -l "flow-maps-version=$TRAVIS_COMMIT,run=flow-maps-consumer" -ao jsonpath='{range .items[*].status.containerStatuses[*]}{@.name}{" ready="}{@.ready}{"\n"}{end}'`
     windshaft_status=`kubectl get pods -l "flow-maps-version=$TRAVIS_COMMIT,run=flow-maps-windshaft" -ao jsonpath='{range .items[*].status.containerStatuses[*]}{@.name}{" ready="}{@.ready}{"\n"}{end}'`
@@ -25,7 +25,7 @@ while [ $(( $(date +%s) - 120 )) -lt ${starttime} ]; do
     fi
 done
 
-echo "Containers not ready after 2 minutes or old containers not stopped"
+echo "Containers not ready after 5 minutes or old containers not stopped"
 
 kubectl get pods -l "run=flow-maps-consumer" -ao jsonpath='{range .items[*].status.containerStatuses[*]}{@.name}{" ready="}{@.ready}{"\n"}{end}'
 kubectl get pods -l "run=flow-maps-windshaft" -ao jsonpath='{range .items[*].status.containerStatuses[*]}{@.name}{" ready="}{@.ready}{"\n"}{end}'
