@@ -49,15 +49,16 @@
     (.close bo)
     (String. (.toByteArray bo) (Charset/forName "UTF-8"))))
 
-(defonce secure-http-client (http/create-client {:connection-timeout 10000
-                                                 :request-timeout    10000
-                                                 :max-connections    10
-                                                 :ssl-context        (create-ssl-context)}))
+(defonce secure-http-client (delay
+                              (http/create-client {:connection-timeout 10000
+                                                   :request-timeout    10000
+                                                   :max-connections    10
+                                                   :ssl-context        (create-ssl-context)})))
 
 (defn push-data-point [data-point topic]
   (let [value data-point]
     (end-to-end/json-request
-      secure-http-client
+      @secure-http-client
       {:method  :post
        :headers {"content-type" "application/vnd.kafka.avro.v2+json"
                  "Accept"       "application/vnd.kafka.v2+json"}
