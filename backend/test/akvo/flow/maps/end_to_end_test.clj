@@ -99,20 +99,22 @@
                                           :request-timeout    10000
                                           :max-connections    10}))
 
-(defn json-request [req]
-  (let [res (-> (http/proxy-request http-client
-                                    (update req :headers (fn [req-headers]
-                                                           (merge {"content-type" "application/json"} req-headers))))
-                (update :status :code)
-                (update :body (fn [body]
-                                (try
-                                  (json/parse-string body true)
-                                  (catch JsonParseException _ (throw
-                                                                (RuntimeException. (str "expecting json response, was:'" body "'"))))))))]
-    (debug "resp -> " res)
-    (when (:error res)
-      (throw (ex-info "Error in response" res)))
-    res))
+(defn json-request
+  ([req] (json-request http-client req))
+  ([http-client req]
+   (let [res (-> (http/proxy-request http-client
+                                     (update req :headers (fn [req-headers]
+                                                            (merge {"content-type" "application/json"} req-headers))))
+                 (update :status :code)
+                 (update :body (fn [body]
+                                 (try
+                                   (json/parse-string body true)
+                                   (catch JsonParseException _ (throw
+                                                                 (RuntimeException. (str "expecting json response, was:'" body "'"))))))))]
+     (debug "resp -> " res)
+     (when (:error res)
+       (throw (ex-info "Error in response" res)))
+     res)))
 
 (defn access-token [{:keys [url user password]}]
   (-> (json-request {:method  :post

@@ -20,6 +20,9 @@ services:
       DATABASE_URL: "jdbc:postgresql://postgres/master_db?user=dbuser&password=dbpassword&ssl=true"
       KEYCLOAK_URL: http://keycloak:8080/auth
       KEYCLOAK_TEST_PASSWORD: ${KEYCLOAK_TEST_PASSWORD}
+      KAFKA_KEYSTORE_PASSWORD: ${KAFKA_KEYSTORE_PASSWORD}
+      KAFKA_KEY_PASSWORD: ${KAFKA_KEY_PASSWORD}
+      KAFKA_KEYSTORE_PATH: /kafka-certs/test.env.kafka.keystore.jks
     volumes:
       - ./backend:/app
       - ~/.m2:/root/.m2
